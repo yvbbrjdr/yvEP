@@ -155,7 +155,7 @@ int main() {
 						for (;i<len&&tstr[i]!=' ';++i)
 							s+=tstr[i];
 					else {
-						for (++i;i<len&&tstr[i+1]!='\"';++i)
+						for (++i;i<len&&tstr[i]!='\"';++i)
 							s+=tstr[i];
 						++i;
 					}
