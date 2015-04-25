@@ -13,7 +13,7 @@ namespace yvEP {
 	void (*recvfunc)(const char*,in_port_t,size_t,const char*);
 	void (*keyreq)(const char*,in_port_t);
 	void (*keyrecv)(const char*,in_port_t);
-	static void RecvE(const char* RemoteIP,in_port_t RemotePort,size_t ContentLength,const char* Content) {
+    static void RecvE(const char* RemoteIP,in_port_t RemotePort,size_t,const char* Content) {
 		if (*Content=='k') {
 			char msg[300]={'a'};
 			memcpy(msg+1,rsa.GetPubKey(),270);
