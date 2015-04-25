@@ -27,8 +27,8 @@ MainWindow::MainWindow(QWidget *parent) :
 
 MainWindow::~MainWindow()
 {
-    Turn(server.c_str(),port);
-    Send(("r3"+nickname).c_str());
+    //Turn(server.c_str(),port);
+    //Send(("r3"+nickname).c_str());
     Close();
     delete ui;
 }
