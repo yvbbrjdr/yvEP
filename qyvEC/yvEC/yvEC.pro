@@ -11,6 +11,7 @@ greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 TARGET = yvEC
 TEMPLATE = app
 
+LIBS += -lpthread -lssl -lcrypto
 
 SOURCES += main.cpp\
         mainwindow.cpp
