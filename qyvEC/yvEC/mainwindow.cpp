@@ -167,8 +167,10 @@ void MainWindow::on_listWidget_clicked(const QModelIndex &index)
 }
 
 void MainWindow::update() {
-    ui->plainTextEdit->clear();
-    ui->plainTextEdit->appendPlainText(jl[ip2].c_str());
+    if (ui->plainTextEdit->toPlainText().toStdString()!=jl[ip2]) {
+        ui->plainTextEdit->clear();
+        ui->plainTextEdit->appendPlainText(jl[ip2].c_str());
+    }
 }
 
 void MainWindow::on_lineEdit_editingFinished() {on_pushButton_2_clicked();}
