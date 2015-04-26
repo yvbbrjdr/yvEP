@@ -56,6 +56,7 @@ void *processqueue(void*) {
                     port2=atoi(&tstr[strlen(tstr)+1]);
                     udp->Send(ip2,port2,5,"test");
                     u->pushButton_2->setEnabled(1);
+                    u->lineEdit->setEnabled(1);
                 } else if (Content[1]=='3') {
                     Turn(server.c_str(),port);
                     Send("l0");
@@ -173,4 +174,7 @@ void MainWindow::update() {
     }
 }
 
-void MainWindow::on_lineEdit_editingFinished() {on_pushButton_2_clicked();}
+void MainWindow::on_lineEdit_editingFinished() {
+    if (ui->lineEdit->text().toStdString()!="")
+        on_pushButton_2_clicked();
+}
