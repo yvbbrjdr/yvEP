@@ -23,7 +23,18 @@ in_port_t port=2428,port2;
 map<string,string>jl;
 Ui::MainWindow *u;
 
-void Recv(const char*,in_port_t,size_t,const char *Content) {que.push(Content);}
+void Recv(const char *IP,in_port_t,size_t,const char *Content) {
+    if (*Content=='m') {
+        strcpy(tstr,Content+1);
+        *strchr(tstr,char(-35))=0;
+        time_t t=time(0);
+        tm *current_time = localtime(&t);
+        char tt[500];
+        sprintf(tt,"%d:%d:%d %s\n%s\n\n",current_time->tm_hour,current_time->tm_min,current_time->tm_sec,tstr,&tstr[strlen(tstr)+1]);
+        jl[IP]+=tt;
+    } else
+        que.push(Content);
+}
 
 void *processqueue(void*) {
     while (1)
@@ -61,14 +72,6 @@ void *processqueue(void*) {
                     Turn(server.c_str(),port);
                     Send("l0");
                 }
-            } else if (*Content=='m') {
-                strcpy(tstr,Content+1);
-                *strchr(tstr,char(-35))=0;
-                time_t t=time(0);
-                tm *current_time = localtime(&t);
-                char tt[500];
-                sprintf(tt,"%d:%d:%d %s\n%s\n\n",current_time->tm_hour,current_time->tm_min,current_time->tm_sec,tstr,&tstr[strlen(tstr)+1]);
-                jl[ip2]+=tt;
             }
         }
     return NULL;
