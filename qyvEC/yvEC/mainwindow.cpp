@@ -22,6 +22,7 @@ string server="yvec.yvbb.tk",nickname;
 in_port_t port=2428,port2;
 map<string,string>jl;
 Ui::MainWindow *u;
+bool chatting;
 
 void Recv(const char *IP,in_port_t,size_t,const char *Content) {
     if (*Content=='m') {
@@ -66,8 +67,7 @@ void *processqueue(void*) {
                     strcpy(ip2,tstr);
                     port2=atoi(&tstr[strlen(tstr)+1]);
                     udp->Send(ip2,port2,5,"test");
-                    u->pushButton_2->setEnabled(1);
-                    u->lineEdit->setEnabled(1);
+                    chatting=1;
                 } else if (Content[1]=='3') {
                     Turn(server.c_str(),port);
                     Send("l0");
@@ -104,7 +104,7 @@ MainWindow::MainWindow(QWidget *parent) :
     sprintf(tstr,"%s:%d",server.c_str(),port);
     QInputDialog *inp=new QInputDialog;
     do {
-        QString t=inp->getText(this,"Input Server"," Please Input Server Name And Port: ",QLineEdit::Normal,tstr,0,0,Qt::ImhNone);
+        QString t=inp->getText(this,"Input Server","Please Input Server Name And Port: ",QLineEdit::Normal,tstr,0,0,Qt::ImhNone);
         if (t=="")
             exit(0);
         QByteArray ba=t.toLatin1();
@@ -171,6 +171,10 @@ void MainWindow::on_listWidget_clicked(const QModelIndex &index)
 }
 
 void MainWindow::update() {
+    if (chatting) {
+        ui->pushButton_2->setEnabled(1);
+        ui->lineEdit->setEnabled(1);
+    }
     if (ui->plainTextEdit->toPlainText().toStdString()!=jl[ip2]) {
         ui->plainTextEdit->clear();
         ui->plainTextEdit->appendPlainText(jl[ip2].c_str());
