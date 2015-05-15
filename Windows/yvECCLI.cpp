@@ -10,7 +10,6 @@
 using namespace yvEP;
 using namespace std;
 
-#define in_port_t u_short
 queue<string>que;
 unsigned char loggedin,chatting;
 char tstr[300],ip2[20];
@@ -179,5 +178,4 @@ int main() {
 			}
 	}
 }
-#undef in_port_t
 

@@ -5,7 +5,6 @@
 #include "yvRSA.hpp"
 #include "yvWindowsUDP.hpp"
 
-#define in_port_t u_short
 namespace yvEP {
 	yvUDP *udp;
 	yvRSA rsa,rsa2;
@@ -64,7 +63,6 @@ namespace yvEP {
 		rsa2.Close();
 	}
 };
-#undef in_port_t
 
 #endif
 

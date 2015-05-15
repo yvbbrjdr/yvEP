@@ -8,7 +8,6 @@
 using namespace std;
 using namespace yvEP;
 
-#define in_port_t u_short
 typedef pair<string,in_port_t>endpoint;
 typedef pair<endpoint,string>pack;
 typedef map<string,endpoint>listmap;
@@ -91,5 +90,4 @@ int main() {
 	}
 	return 0;
 }
-#undef in_port_t
 

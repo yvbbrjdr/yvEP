@@ -15,7 +15,6 @@
 using namespace yvEP;
 using namespace std;
 
-#define in_port_t u_short
 queue<string>que;
 unsigned char loggedin;
 char tstr[300],ip2[20];
@@ -192,4 +191,3 @@ void MainWindow::on_lineEdit_editingFinished() {
     if (ui->lineEdit->text().toStdString()!="")
         on_pushButton_2_clicked();
 }
-#undef in_port_t

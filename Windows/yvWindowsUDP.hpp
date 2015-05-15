@@ -16,9 +16,10 @@ void yvUDPClose() {
 	WSACleanup();
 }
 
-#define sockaddr_in SOCKADDR_IN
-#define sockaddr SOCKADDR
-#define in_port_t u_short
+typedef SOCKADDR_IN sockaddr_in;
+typedef SOCKADDR sockaddr;
+typedef u_short in_port_t;
+
 class yvUDP {
 private:
 	SOCKET sockfd;
@@ -66,9 +67,6 @@ public:
 		closesocket(sockfd);
 	}
 };
-#undef sockaddr_in
-#undef sockaddr
-#undef in_port_t
 
 #endif
 
