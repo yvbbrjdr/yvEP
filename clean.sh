@@ -1,5 +1,3 @@
-echo Removing yvEIO. . .
-rm -f yvEIO
 echo Removing yvECCLI Config File. . .
 rm -f Server.yvEC
 echo Removing yvECCLI. . .
