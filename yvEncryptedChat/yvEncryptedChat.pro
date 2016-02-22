@@ -19,4 +19,6 @@ HEADERS  += mainwindow.h
 
 FORMS    += mainwindow.ui
 
-LIBS     += -lyvEncryptedProtocol
+INCLUDEPATH += ../yvEncryptedProtocol
+
+LIBS     += -L../lib -lyvEncryptedProtocol

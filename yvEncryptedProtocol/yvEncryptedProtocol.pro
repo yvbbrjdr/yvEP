@@ -18,7 +18,4 @@ SOURCES += yvep.cpp
 HEADERS += yvep.h\
         yvencryptedprotocol_global.h
 
-unix {
-    target.path = /usr/lib
-    INSTALLS += target
-}
+DESTDIR += ../lib

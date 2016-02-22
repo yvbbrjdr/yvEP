@@ -4,7 +4,7 @@
 #include <QMainWindow>
 #include <QString>
 #include <QMessageBox>
-#include "../yvEncryptedProtocol/yvep.h"
+#include <yvep.h>
 
 namespace Ui {
     class MainWindow;
