@@ -4,8 +4,7 @@
 MainWindow::MainWindow(QWidget *parent):QMainWindow(parent),ui(new Ui::MainWindow) {
     ui->setupUi(this);
     yvep=new yvEP(8080,this);
-    connect(yvep,SIGNAL(Recv(QString,unsigned short,QByteArray)),this,SLOT(RecvData(QString,unsigned short,QByteArray)));
-
+    connect(yvep,SIGNAL(RecvData(QString,unsigned short,QByteArray)),this,SLOT(RecvData(QString,unsigned short,QByteArray)));
 }
 
 MainWindow::~MainWindow() {
@@ -17,5 +16,9 @@ void MainWindow::RecvData(const QString &IP,unsigned short Port,const QByteArray
 }
 
 void MainWindow::on_pushButton_clicked() {
-    yvep->Send(ui->lineEdit->text(),8080,"Fuck you");
+    if (ui->lineEdit->text()!=yvep->CurRemoteIP()) {
+        yvep->ConnectTo(ui->lineEdit->text(),8080);
+        return;
+    }
+    yvep->SendData("Hello, yv! \n");
 }

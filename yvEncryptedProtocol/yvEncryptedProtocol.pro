@@ -13,9 +13,13 @@ TEMPLATE = lib
 
 DEFINES += YVENCRYPTEDPROTOCOL_LIBRARY
 
-SOURCES += yvep.cpp
+SOURCES += yvep.cpp \
+    udpsocket.cpp
 
 HEADERS += yvep.h\
-        yvencryptedprotocol_global.h
+        yvencryptedprotocol_global.h \
+    udpsocket.h
 
 DESTDIR += ../lib
+
+LIBS    += -lcrypto
