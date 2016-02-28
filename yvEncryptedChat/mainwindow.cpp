@@ -1,10 +1,13 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 
-MainWindow::MainWindow(QWidget *parent):QMainWindow(parent),ui(new Ui::MainWindow) {
+MainWindow::MainWindow(yvEP *protocol,const QString &ServerIP,unsigned short ServerPort,const QString &Nickname,QWidget *parent):QMainWindow(parent),ui(new Ui::MainWindow),protocol(protocol),ServerIP(ServerIP),ServerPort(ServerPort),Nickname(Nickname) {
     ui->setupUi(this);
-    yvep=new yvEP(8080,this);
-    connect(yvep,SIGNAL(RecvData(QString,unsigned short,QByteArray)),this,SLOT(RecvData(QString,unsigned short,QByteArray)));
+    listmodel=new QStringListModel(this);
+    connect(protocol,SIGNAL(RecvData(QString,unsigned short,QByteArray)),this,SLOT(RecvData(QString,unsigned short,QByteArray)));
+    connect(ui->Message,SIGNAL(returnPressed()),this,SLOT(SendMessage()));
+    connect(ui->RefreshButton,SIGNAL(clicked(bool)),this,SLOT(Refresh()));
+    Refresh();
 }
 
 MainWindow::~MainWindow() {
@@ -12,13 +15,17 @@ MainWindow::~MainWindow() {
 }
 
 void MainWindow::RecvData(const QString &IP,unsigned short Port,const QByteArray &Data) {
-    QMessageBox::information(this,"data",QString(Data)+'\n'+IP+':'+QString::number(Port));
+    if (Data.left(2)=="li") {
+        listmodel->setStringList(QString(Data.mid(3)).split('\n'));
+        ui->ClientList->setModel(listmodel);
+    }
 }
 
-void MainWindow::on_pushButton_clicked() {
-    if (ui->lineEdit->text()!=yvep->CurRemoteIP()) {
-        yvep->ConnectTo(ui->lineEdit->text(),8080);
-        return;
-    }
-    yvep->SendData("Hello, yv! \n");
+void MainWindow::SendMessage() {
+    ui->History->append(ui->Message->text());
+    ui->Message->setText("");
+}
+
+void MainWindow::Refresh() {
+    protocol->ConnectAndSend(ServerIP,ServerPort,"li");
 }

@@ -7,6 +7,8 @@
 #include <openssl/rsa.h>
 #include <QString>
 #include <QThread>
+#include <QTime>
+#include <QCoreApplication>
 #include "udpsocket.h"
 
 class YVENCRYPTEDPROTOCOLSHARED_EXPORT yvEP : public QObject {
@@ -16,6 +18,9 @@ public:
     ~yvEP();
     QString CurRemoteIP();
     unsigned short CurRemotePort();
+    bool ConnectTo(const QString &IP,unsigned short Port);
+    void SendData(const QByteArray &Data);
+    bool ConnectAndSend(const QString &IP,unsigned short Port,const QByteArray &Data);
 private:
     UdpSocket *socket;
     QThread *thread;
@@ -26,10 +31,6 @@ private:
 signals:
     void RecvData(const QString &IP,unsigned short Port,const QByteArray &Data);
     void ConnectYou(const QString &IP,unsigned short Port);
-    void ConnectedTo(const QString &IP,unsigned short Port);
-public slots:
-    void ConnectTo(const QString &IP,unsigned short Port);
-    void SendData(const QByteArray &Data);
 private slots:
     void ProcessData(const QString &IP,unsigned short Port,const QByteArray &Data);
 };

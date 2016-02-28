@@ -26,8 +26,17 @@ unsigned short yvEP::CurRemotePort() {
     return RemotePort;
 }
 
-void yvEP::ConnectTo(const QString &IP,unsigned short Port) {
+bool yvEP::ConnectTo(const QString &IP,unsigned short Port) {
+    if (RemoteIP==IP&&RemotePort==Port)
+        return 1;
     emit socket->SendData(IP,Port,"0");
+    QTime t=QTime::currentTime();
+    t.start();
+    while (t.elapsed()<1000&&(RemoteIP!=IP||RemotePort!=Port))
+        QCoreApplication::processEvents();
+    if (RemoteIP==IP&&RemotePort==Port)
+        return true;
+    return false;
 }
 
 void yvEP::SendData(const QByteArray &Data) {
@@ -38,6 +47,13 @@ void yvEP::SendData(const QByteArray &Data) {
     QByteArray qba("2");
     qba.append((const char*)t,len);
     emit socket->SendData(RemoteIP,RemotePort,qba);
+}
+
+bool yvEP::ConnectAndSend(const QString &IP,unsigned short Port,const QByteArray &Data) {
+    if (!ConnectTo(IP,Port))
+        return false;
+    SendData(Data);
+    return true;
 }
 
 void yvEP::ProcessData(const QString &IP,unsigned short Port,const QByteArray &Data) {
@@ -53,7 +69,6 @@ void yvEP::ProcessData(const QString &IP,unsigned short Port,const QByteArray &D
         unsigned char *tkey=(unsigned char*)(Data.data())+1;
         RSA_free(RemoteRSA);
         RemoteRSA=d2i_RSAPublicKey(NULL,(const unsigned char**)(&tkey),Data.length()-1);
-        emit ConnectedTo(IP,Port);
     } else if (op=='2') {
         unsigned char t[KEYLEN>>3];
         int len=RSA_private_decrypt(Data.length()-1,(unsigned char*)(Data.data())+1,t,LocalRSA,RSA_PKCS1_PADDING);
