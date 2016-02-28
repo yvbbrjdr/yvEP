@@ -7,6 +7,9 @@
 #include <yvep.h>
 #include <QStringList>
 #include <QStringListModel>
+#include <QTimer>
+#include <QMap>
+#include <QTextCursor>
 
 namespace Ui {
     class MainWindow;
@@ -23,11 +26,20 @@ private:
     QString ServerIP;
     unsigned short ServerPort;
     QString Nickname;
+    QString RemoteIP;
+    unsigned short RemotePort;
+    QString RemoteNickname;
     QStringListModel *listmodel;
+    QTimer *refreshtimer;
+    QMap<QString,QString>History;
+    void CursorDown();
 private slots:
-    void RecvData(const QString &IP,unsigned short Port,const QByteArray &Data);
+    void RecvData(const QString&,unsigned short,const QByteArray &Data);
     void SendMessage();
     void Refresh();
+    void Touch(const QModelIndex &index);
+protected:
+    void closeEvent(QCloseEvent*);
 };
 
 #endif // MAINWINDOW_H
