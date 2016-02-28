@@ -10,6 +10,7 @@
 #include <QTimer>
 #include <QMap>
 #include <QTextCursor>
+#include <QLabel>
 
 namespace Ui {
     class MainWindow;
@@ -33,6 +34,7 @@ private:
     QTimer *refreshtimer;
     QMap<QString,QString>History;
     void CursorDown();
+    QLabel *DownLabel;
 private slots:
     void RecvData(const QString&,unsigned short,const QByteArray &Data);
     void SendMessage();

@@ -5,6 +5,11 @@ MainWindow::MainWindow(yvEP *protocol,const QString &ServerIP,unsigned short Ser
     ui->setupUi(this);
     listmodel=new QStringListModel(this);
     refreshtimer=new QTimer(this);
+    DownLabel=new QLabel;
+    DownLabel->setMinimumSize(DownLabel->sizeHint());
+    DownLabel->setAlignment(Qt::AlignHCenter);
+    ui->statusBar->addWidget(DownLabel);
+    ui->statusBar->setStyleSheet("QStatusBar::item{border: 0px}");
     connect(protocol,SIGNAL(RecvData(QString,unsigned short,QByteArray)),this,SLOT(RecvData(QString,unsigned short,QByteArray)));
     connect(ui->Message,SIGNAL(returnPressed()),this,SLOT(SendMessage()));
     connect(ui->RefreshButton,SIGNAL(clicked(bool)),this,SLOT(Refresh()));
@@ -30,6 +35,8 @@ void MainWindow::RecvData(const QString&,unsigned short,const QByteArray &Data) 
         protocol->ConnectAndSend(RemoteIP,RemotePort,"hello");
         ui->Message->setEnabled(true);
         ui->Message->setFocus();
+        if (DownLabel->text().left(DownLabel->text().length()-20)==RemoteNickname)
+            DownLabel->setText("");
     } else if (Data.left(2)=="t2") {
         QStringList qsl=QString(Data.mid(2)).split(":");
         protocol->ConnectAndSend(qsl.at(0),qsl.at(1).toInt(),"hello");
@@ -43,7 +50,7 @@ void MainWindow::RecvData(const QString&,unsigned short,const QByteArray &Data) 
             ui->History->setText(History[n]);
             CursorDown();
         } else {
-
+            DownLabel->setText(n+" sent you a message.");
         }
     }
 }
