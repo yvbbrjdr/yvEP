@@ -32,14 +32,13 @@ void MainWindow::RecvData(const QString&,unsigned short,const QByteArray &Data) 
         RemoteIP=qsl.at(0);
         RemotePort=qsl.at(1).toInt();
         RemoteNickname=qsl.at(2);
-        protocol->ConnectAndSend(RemoteIP,RemotePort,"hello");
         ui->Message->setEnabled(true);
         ui->Message->setFocus();
         if (DownLabel->text().left(DownLabel->text().length()-20)==RemoteNickname)
             DownLabel->setText("");
     } else if (Data.left(2)=="t2") {
         QStringList qsl=QString(Data.mid(2)).split(":");
-        protocol->ConnectAndSend(qsl.at(0),qsl.at(1).toInt(),"hello");
+        protocol->ConnectTo(qsl.at(0),qsl.at(1).toInt());
     } else if (Data.left(2)=="t3") {
         Refresh();
         ui->Message->setEnabled(false);
