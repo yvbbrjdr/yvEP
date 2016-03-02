@@ -43,8 +43,8 @@ void MainWindow::RecvData(const QString&,unsigned short,const QByteArray &Data) 
         Refresh();
         ui->Message->setEnabled(false);
     } else if (Data[0]=='m') {
-        QString n=Data.mid(1,Data.indexOf(':')-1);
-        History[n]+=Data.mid(Data.indexOf(':')+1);
+        QString n=Data.mid(1,Data.indexOf('\n')-1);
+        History[n]+=QTime::currentTime().toString("hh:mm:ss")+' '+Data.mid(1)+"\n\n";
         if (n==RemoteNickname) {
             ui->History->setText(History[n]);
             CursorDown();
@@ -57,13 +57,12 @@ void MainWindow::RecvData(const QString&,unsigned short,const QByteArray &Data) 
 void MainWindow::SendMessage() {
     if (ui->Message->text()=="")
         return;
-    QString Message;
-    Message=QTime::currentTime().toString("hh:mm:ss")+' '+Nickname+'\n'+ui->Message->text()+"\n\n";
-    History[RemoteNickname]+=Message;
+    QString Message('m'+Nickname+'\n'+ui->Message->text());
+    History[RemoteNickname]+=QTime::currentTime().toString("hh:mm:ss")+' '+Message.mid(1)+"\n\n";
     ui->History->setText(History[RemoteNickname]);
     CursorDown();
     ui->Message->setText("");
-    protocol->ConnectAndSend(RemoteIP,RemotePort,('m'+Nickname+':'+Message).toUtf8());
+    protocol->ConnectAndSend(RemoteIP,RemotePort,Message.toUtf8());
 }
 
 void MainWindow::Refresh() {
