@@ -75,6 +75,7 @@ void MainWindow::closeEvent(QCloseEvent*) {
 
 void MainWindow::Touch(const QModelIndex &index) {
     ui->History->setText(History[index.data().toString()]);
+    CursorDown();
     protocol->ConnectAndSend(ServerIP,ServerPort,("t0"+index.data().toString()).toUtf8());
 }
 
