@@ -50,7 +50,7 @@
      </rect>
     </property>
     <property name="maxLength">
-     <number>200</number>
+     <number>480</number>
     </property>
    </widget>
    <widget class="QListView" name="ClientList">

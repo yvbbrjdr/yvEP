@@ -1,6 +1,6 @@
 #include "yvep.h"
 
-#define KEYLEN (2048)
+#define KEYLEN (4096)
 
 yvEP::yvEP(unsigned short Port,QObject *parent):QObject(parent) {
     socket=new UdpSocket(Port);
