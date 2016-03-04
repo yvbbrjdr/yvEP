@@ -22,8 +22,15 @@ void ServerWindow::RecvData(const QString &IP,unsigned short Port,const QByteArr
             protocol->ConnectAndSend(IP,Port,"l2");
     } else if (Data.left(2)=="li") {
         QString s("li\n");
-        for (QMap<QString,QPair<QString,unsigned short> >::iterator it=Clients.begin();it!=Clients.end();++it)
+        int count=0;
+        for (QMap<QString,QPair<QString,unsigned short> >::iterator it=Clients.begin();it!=Clients.end();++it) {
             s+=it.key()+'\n';
+            ++count;
+            if (count%20==0) {
+                protocol->ConnectAndSend(IP,Port,s.left(s.length()-1).toUtf8());
+                s="li\n";
+            }
+        }
         protocol->ConnectAndSend(IP,Port,s.left(s.length()-1).toUtf8());
     } else if (Data.left(2)=="l3") {
         Clients.remove(QString(Data.mid(2)));

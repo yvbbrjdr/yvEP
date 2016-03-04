@@ -25,8 +25,10 @@ MainWindow::~MainWindow() {
 
 void MainWindow::RecvData(const QString&,unsigned short,const QByteArray &Data) {
     if (Data.left(2)=="li") {
-        listmodel->setStringList(QString(Data.mid(3)).split('\n'));
-        ui->ClientList->setModel(listmodel);
+        if (Data.size()==2)
+            return;
+        Clients.append(QString(Data.mid(3)).split('\n'));
+        UpdateClients();
     } else if (Data.left(2)=="t1") {
         QStringList qsl=QString(Data.mid(2)).split(":");
         RemoteIP=qsl.at(0);
@@ -66,6 +68,8 @@ void MainWindow::SendMessage() {
 }
 
 void MainWindow::Refresh() {
+    Clients.clear();
+    UpdateClients();
     protocol->ConnectAndSend(ServerIP,ServerPort,"li");
 }
 
@@ -83,4 +87,9 @@ void MainWindow::CursorDown() {
     QTextCursor qtc(ui->History->textCursor());
     qtc.movePosition(QTextCursor::End);
     ui->History->setTextCursor(qtc);
+}
+
+void MainWindow::UpdateClients() {
+    listmodel->setStringList(Clients);
+    ui->ClientList->setModel(listmodel);
 }
