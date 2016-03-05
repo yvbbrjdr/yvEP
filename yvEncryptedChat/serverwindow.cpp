@@ -53,8 +53,11 @@ void ServerWindow::RecvData(const QString &IP,unsigned short Port,const QByteArr
         }
         protocol->ConnectAndSend(IP,Port,s.left(s.length()-1).toUtf8());
     } else if (Data.left(2)=="l3") {
-        Clients.remove(QString(Data.mid(2)));
-        UpdateList();
+        QString n(Data.mid(2));
+        if (Clients.find(n)!=Clients.end()&&Clients[n].first==IP&&Clients[n].second==Port) {
+            Clients.remove(n);
+            UpdateList();
+        }
     } else if (Data.left(2)=="t0") {
         if (Clients.find(Data.mid(2))==Clients.end())
             protocol->ConnectAndSend(IP,Port,"t3");
