@@ -66,9 +66,9 @@ void MainWindow::RecvData(const QString&,unsigned short,const QByteArray &Data) 
         ui->Message->setEnabled(false);
     } else if (Data[0]=='m') {
         QString n=Data.mid(1,Data.indexOf('\n')-1);
-        History[n]+=QTime::currentTime().toString("hh:mm:ss")+' '+Data.mid(1)+"\n\n";
+        History[n]+="<p style=\"text-align:left\"><font color=\"green\">"+QTime::currentTime().toString("hh:mm:ss")+' '+Data.mid(1).replace('\n',"<br>")+"</font></p>";
         if (n==RemoteNickname) {
-            ui->History->setText(History[n]);
+            ui->History->setHtml(History[n]);
             CursorDown();
         } else {
             DownLabel->setText(n+" sent you a message.");
@@ -80,8 +80,8 @@ void MainWindow::SendMessage() {
     if (ui->Message->text()=="")
         return;
     QString Message('m'+Nickname+'\n'+ui->Message->text());
-    History[RemoteNickname]+=QTime::currentTime().toString("hh:mm:ss")+' '+Message.mid(1)+"\n\n";
-    ui->History->setText(History[RemoteNickname]);
+    History[RemoteNickname]+="<p style=\"text-align:right\"><font color=\"blue\">"+QTime::currentTime().toString("hh:mm:ss")+' '+Message.mid(1).replace('\n',"<br>")+"</font></p>";
+    ui->History->setHtml(History[RemoteNickname]);
     CursorDown();
     ui->Message->setText("");
     protocol->ConnectAndSend(RemoteIP,RemotePort,Message.toUtf8());
@@ -98,7 +98,7 @@ void MainWindow::closeEvent(QCloseEvent*) {
 }
 
 void MainWindow::Touch(const QModelIndex &index) {
-    ui->History->setText(History[index.data().toString()]);
+    ui->History->setHtml(History[index.data().toString()]);
     CursorDown();
     protocol->ConnectAndSend(ServerIP,ServerPort,("t0"+index.data().toString()).toUtf8());
 }
