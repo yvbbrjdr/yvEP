@@ -31,7 +31,6 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #include <QChar>
 #include "yvep.h"
 #include "mainwindow.h"
-#include "serverwindow.h"
 
 namespace Ui {
     class LoginDialog;
@@ -48,7 +47,6 @@ private:
     void SaveConfig();
 private slots:
     void LoginPressed();
-    void ServerPressed();
     void RecvData(const QString&,unsigned short,const QByteArray &Data);
 };
 

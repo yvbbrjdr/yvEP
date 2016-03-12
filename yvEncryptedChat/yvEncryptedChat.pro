@@ -14,16 +14,13 @@ TEMPLATE = app
 
 SOURCES += main.cpp\
         mainwindow.cpp \
-    logindialog.cpp \
-    serverwindow.cpp
+    logindialog.cpp
 
 HEADERS  += mainwindow.h \
-    logindialog.h \
-    serverwindow.h
+    logindialog.h
 
 FORMS    += mainwindow.ui \
-    logindialog.ui \
-    serverwindow.ui
+    logindialog.ui
 
 INCLUDEPATH += ../yvEncryptedProtocol
 
