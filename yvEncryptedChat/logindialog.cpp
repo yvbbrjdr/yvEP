@@ -35,7 +35,6 @@ LoginDialog::LoginDialog(QWidget *parent):QDialog(parent),ui(new Ui::LoginDialog
         ui->LoginButton->setFocus();
     }
     connect(ui->LoginButton,SIGNAL(clicked(bool)),this,SLOT(LoginPressed()));
-    connect(ui->ServerButton,SIGNAL(clicked(bool)),this,SLOT(ServerPressed()));
 }
 
 LoginDialog::~LoginDialog() {
@@ -63,16 +62,6 @@ void LoginDialog::LoginPressed() {
         ui->TitleLabel->setText("Failed");
         protocol->deleteLater();
     }
-}
-
-void LoginDialog::ServerPressed() {
-    SaveConfig();
-    ui->TitleLabel->setText("Generating RSA key");
-    QApplication::processEvents();
-    protocol=new yvEP(ui->Port->text().toInt());
-    ServerWindow *w=new ServerWindow(protocol);
-    w->show();
-    this->hide();
 }
 
 void LoginDialog::RecvData(const QString&,unsigned short,const QByteArray &Data) {
