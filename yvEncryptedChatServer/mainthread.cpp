@@ -1,9 +1,8 @@
 #include "mainthread.h"
 
 MainThread::MainThread(unsigned short Port) {
-    server=new ServerThread(Port);
+    server=new Server(Port);
     connect(this,SIGNAL(RemoveClient(QString)),server,SLOT(RemoveClient(QString)));
-    server->start();
 }
 
 void MainThread::run() {

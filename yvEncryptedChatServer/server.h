@@ -1,14 +1,14 @@
-#ifndef SERVERTHREAD_H
-#define SERVERTHREAD_H
+#ifndef SERVER_H
+#define SERVER_H
 
-#include <QThread>
+#include <QObject>
 #include <yvep.h>
 #include <QMap>
 
-class ServerThread : public QThread {
+class Server : public QObject {
     Q_OBJECT
 public:
-    ServerThread(unsigned short Port);
+    Server(unsigned short Port);
 private:
     yvEP *protocol;
     QMap<QString,QPair<QString,unsigned short> >Clients;
@@ -17,4 +17,4 @@ private slots:
     void RemoveClient(const QString &Nickname);
 };
 
-#endif // SERVERTHREAD_H
+#endif // SERVER_H

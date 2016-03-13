@@ -1,11 +1,11 @@
-#include "serverthread.h"
+#include "server.h"
 
-ServerThread::ServerThread(unsigned short Port) {
+Server::Server(unsigned short Port) {
     protocol=new yvEP(Port);
     connect(protocol,SIGNAL(RecvData(QString,unsigned short,QByteArray)),this,SLOT(RecvData(QString,unsigned short,QByteArray)));
 }
 
-void ServerThread::RecvData(const QString &IP,unsigned short Port,const QByteArray &Data) {
+void Server::RecvData(const QString &IP,unsigned short Port,const QByteArray &Data) {
     if (Data.left(2)=="l0") {
         if (Clients.find(Data.mid(2))==Clients.end()) {
             Clients.insert(Data.mid(2),QPair<QString,unsigned short>(IP,Port));
@@ -40,6 +40,6 @@ void ServerThread::RecvData(const QString &IP,unsigned short Port,const QByteArr
     }
 }
 
-void ServerThread::RemoveClient(const QString &Nickname) {
+void Server::RemoveClient(const QString &Nickname) {
     Clients.remove(Nickname);
 }

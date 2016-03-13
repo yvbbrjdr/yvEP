@@ -17,7 +17,7 @@ TEMPLATE = app
 
 SOURCES += main.cpp \
     mainthread.cpp \
-    serverthread.cpp
+    server.cpp
 
 INCLUDEPATH += ../yvEncryptedProtocol
 
@@ -25,4 +25,4 @@ LIBS     += -L../lib -lyvEncryptedProtocol
 
 HEADERS += \
     mainthread.h \
-    serverthread.h
+    server.h

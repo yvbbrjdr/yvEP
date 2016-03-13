@@ -3,7 +3,7 @@
 
 #include <QThread>
 #include <cstdio>
-#include "serverthread.h"
+#include "server.h"
 
 class MainThread : public QThread {
     Q_OBJECT
@@ -12,7 +12,7 @@ public:
 protected:
     void run();
 private:
-    ServerThread *server;
+    Server *server;
 signals:
     void RemoveClient(const QString &Nickname);
 };
