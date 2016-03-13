@@ -44,3 +44,6 @@ Makefile*
 
 # Lib
 /lib
+
+# Config
+yvEC.config
