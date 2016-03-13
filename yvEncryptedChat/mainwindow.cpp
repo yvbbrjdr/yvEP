@@ -33,6 +33,7 @@ MainWindow::MainWindow(yvEP *protocol,const QString &ServerIP,unsigned short Ser
     connect(protocol,SIGNAL(RecvData(QString,unsigned short,QByteArray)),this,SLOT(RecvData(QString,unsigned short,QByteArray)));
     connect(ui->Message,SIGNAL(returnPressed()),this,SLOT(SendMessage()));
     connect(ui->RefreshButton,SIGNAL(clicked(bool)),this,SLOT(Refresh()));
+    connect(ui->CloakButton,SIGNAL(clicked(bool)),this,SLOT(Cloak()));
     connect(refreshtimer,SIGNAL(timeout()),this,SLOT(Refresh()));
     connect(ui->ClientList,SIGNAL(clicked(QModelIndex)),this,SLOT(Touch(QModelIndex)));
     Refresh();
@@ -112,4 +113,9 @@ void MainWindow::CursorDown() {
 void MainWindow::UpdateClients() {
     listmodel->setStringList(Clients);
     ui->ClientList->setModel(listmodel);
+}
+
+void MainWindow::Cloak() {
+    protocol->ConnectAndSend(ServerIP,ServerPort,("l4"+Nickname).toUtf8());
+    Refresh();
 }
