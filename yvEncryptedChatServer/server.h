@@ -3,7 +3,7 @@
 
 #include <QObject>
 #include <yvep.h>
-#include <QMap>
+#include "userdata.h"
 
 class Server : public QObject {
     Q_OBJECT
@@ -11,7 +11,7 @@ public:
     Server(unsigned short Port);
 private:
     yvEP *protocol;
-    QMap<QString,QPair<QString,unsigned short> >Clients;
+    QMap<QString,UserData>Clients;
 private slots:
     void RecvData(const QString &IP,unsigned short Port,const QByteArray &Data);
     void RemoveClient(const QString &Nickname);

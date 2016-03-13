@@ -19,12 +19,12 @@
      <rect>
       <x>590</x>
       <y>10</y>
-      <width>161</width>
+      <width>81</width>
       <height>25</height>
      </rect>
     </property>
     <property name="text">
-     <string>Refresh List</string>
+     <string>Refresh</string>
     </property>
    </widget>
    <widget class="QTextBrowser" name="History">
@@ -64,6 +64,19 @@
     </property>
     <property name="editTriggers">
      <set>QAbstractItemView::NoEditTriggers</set>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="CloakButton">
+    <property name="geometry">
+     <rect>
+      <x>670</x>
+      <y>10</y>
+      <width>81</width>
+      <height>25</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Cloak</string>
     </property>
    </widget>
   </widget>

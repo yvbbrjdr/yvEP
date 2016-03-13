@@ -61,6 +61,7 @@ private slots:
     void RecvData(const QString&,unsigned short,const QByteArray &Data);
     void SendMessage();
     void Refresh();
+    void Cloak();
     void Touch(const QModelIndex &index);
 protected:
     void closeEvent(QCloseEvent*);
