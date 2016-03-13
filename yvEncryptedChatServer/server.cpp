@@ -39,7 +39,7 @@ void Server::RecvData(const QString &IP,unsigned short Port,const QByteArray &Da
             it.value().Cloak=!it.value().Cloak;
         }
     } else if (Data.left(2)=="t0") {
-        if (Clients.find(Data.mid(2))==Clients.end())
+        if (Clients.find(Data.mid(2))==Clients.end()||Clients.find(Data.mid(2)).value().Cloak)
             protocol->ConnectAndSend(IP,Port,"t3");
         else {
             UserData ipp=Clients.find(Data.mid(2)).value();
