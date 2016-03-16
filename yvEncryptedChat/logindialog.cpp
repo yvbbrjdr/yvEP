@@ -21,7 +21,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #include "logindialog.h"
 #include "ui_logindialog.h"
 
-LoginDialog::LoginDialog(QWidget *parent):QDialog(parent),ui(new Ui::LoginDialog) {
+LoginDialog::LoginDialog(QWidget *parent):QDialog(parent),ui(new Ui::LoginDialog),protocol(NULL) {
     ui->setupUi(this);
     ui->Address->setFocus();
     QFile config("yvEC.config");
@@ -42,41 +42,6 @@ LoginDialog::~LoginDialog() {
 }
 
 void LoginDialog::LoginPressed() {
-    SaveConfig();
-    ui->TitleLabel->setText("Generating RSA key");
-    QApplication::processEvents();
-    protocol=new yvEP;
-    ui->TitleLabel->setText("Connecting");
-    QApplication::processEvents();
-    QString IP=ui->Address->text();
-    if (!IP.at(0).isDigit()) {
-        IP=QHostInfo::fromName(ui->Address->text()).addresses().first().toString();
-        ui->Address->setText(IP);
-    }
-    if (protocol->ConnectTo(IP,ui->Port->text().toInt())) {
-        ui->TitleLabel->setText("Connected");
-        QApplication::processEvents();
-        connect(protocol,SIGNAL(RecvData(QString,unsigned short,QByteArray)),this,SLOT(RecvData(QString,unsigned short,QByteArray)));
-        protocol->SendData(("l0"+ui->Nickname->text()).toUtf8());
-    } else {
-        ui->TitleLabel->setText("Failed");
-        protocol->deleteLater();
-    }
-}
-
-void LoginDialog::RecvData(const QString&,unsigned short,const QByteArray &Data) {
-    if (Data=="l1") {
-        disconnect(protocol,SIGNAL(RecvData(QString,unsigned short,QByteArray)),this,SLOT(RecvData(QString,unsigned short,QByteArray)));
-        MainWindow *w=new MainWindow(protocol,ui->Address->text(),ui->Port->text().toInt(),ui->Nickname->text());
-        w->show();
-        this->hide();
-    } else if (Data=="l2") {
-        QMessageBox::critical(this,"Failed","Someone else used this nickname:\n"+ui->Nickname->text()+"\nYou have to change one.");
-        protocol->deleteLater();
-    }
-}
-
-void LoginDialog::SaveConfig() {
     QVariantMap qvm;
     qvm.insert("addr",ui->Address->text());
     qvm.insert("port",ui->Port->text().toInt());
@@ -86,4 +51,31 @@ void LoginDialog::SaveConfig() {
     QTextStream stream(&config);
     stream<<QJsonDocument::fromVariant(qvm).toJson();
     config.close();
+    if (!protocol) {
+        ui->TitleLabel->setText("Generating RSA key");
+        QApplication::processEvents();
+        protocol=new yvEP;
+        connect(protocol,SIGNAL(RecvData(QString,unsigned short,QByteArray)),this,SLOT(RecvData(QString,unsigned short,QByteArray)));
+    }
+    ui->TitleLabel->setText("Connecting");
+    QApplication::processEvents();
+    QString IP=ui->Address->text();
+    if (!IP.at(0).isDigit())
+        IP=QHostInfo::fromName(IP).addresses().first().toString();
+    if (protocol->ConnectTo(IP,ui->Port->text().toInt())) {
+        ui->TitleLabel->setText("Connected");
+        QApplication::processEvents();
+        protocol->SendData(("l0"+ui->Nickname->text()).toUtf8());
+    } else
+        ui->TitleLabel->setText("Failed");
+}
+
+void LoginDialog::RecvData(const QString&,unsigned short,const QByteArray &Data) {
+    if (Data=="l1") {
+        disconnect(protocol,SIGNAL(RecvData(QString,unsigned short,QByteArray)),this,SLOT(RecvData(QString,unsigned short,QByteArray)));
+        MainWindow *w=new MainWindow(protocol,ui->Address->text(),ui->Port->text().toInt(),ui->Nickname->text());
+        w->show();
+        this->hide();
+    } else if (Data=="l2")
+        QMessageBox::critical(this,"Failed","Someone else used this nickname:\n"+ui->Nickname->text()+"\nYou have to change one.");
 }

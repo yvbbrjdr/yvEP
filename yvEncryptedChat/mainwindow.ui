@@ -10,6 +10,18 @@
     <height>544</height>
    </rect>
   </property>
+  <property name="minimumSize">
+   <size>
+    <width>755</width>
+    <height>544</height>
+   </size>
+  </property>
+  <property name="maximumSize">
+   <size>
+    <width>755</width>
+    <height>544</height>
+   </size>
+  </property>
   <property name="windowTitle">
    <string>yvEncryptedChat</string>
   </property>
