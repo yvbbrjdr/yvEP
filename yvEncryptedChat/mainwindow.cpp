@@ -74,6 +74,7 @@ void MainWindow::RecvData(const QString&,unsigned short,const QByteArray &Data) 
         } else {
             DownLabel->setText(n+" sent you a message.");
         }
+        activateWindow();
     }
 }
 
