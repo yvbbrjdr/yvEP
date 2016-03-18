@@ -39,7 +39,7 @@ namespace Ui {
 class MainWindow : public QMainWindow {
     Q_OBJECT
 public:
-    explicit MainWindow(yvEP *protocol,const QString &ServerIP,unsigned short ServerPort,const QString &Nickname,QWidget *parent=0);
+    explicit MainWindow(yvEP *protocol,const QString &Nickname,QWidget *parent=0);
     ~MainWindow();
 private:
     Ui::MainWindow *ui;

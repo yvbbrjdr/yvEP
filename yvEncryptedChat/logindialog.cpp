@@ -73,7 +73,7 @@ void LoginDialog::LoginPressed() {
 void LoginDialog::RecvData(const QString&,unsigned short,const QByteArray &Data) {
     if (Data=="l1") {
         disconnect(protocol,SIGNAL(RecvData(QString,unsigned short,QByteArray)),this,SLOT(RecvData(QString,unsigned short,QByteArray)));
-        MainWindow *w=new MainWindow(protocol,ui->Address->text(),ui->Port->text().toInt(),ui->Nickname->text());
+        MainWindow *w=new MainWindow(protocol,ui->Nickname->text());
         w->show();
         this->hide();
     } else if (Data=="l2")
