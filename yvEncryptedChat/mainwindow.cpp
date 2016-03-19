@@ -59,12 +59,15 @@ void MainWindow::RecvData(const QString&,unsigned short,const QByteArray &Data) 
         ui->Message->setFocus();
         if (DownLabel->text().left(DownLabel->text().length()-20)==RemoteNickname)
             DownLabel->setText("");
+        if (RemoteIP=="127.0.0.1") {
+            RemoteIP=ServerIP;
+            RemotePort=ServerPort;
+        }
     } else if (Data.left(2)=="t2") {
         QStringList qsl=QString(Data.mid(2)).split(":");
         protocol->ConnectTo(qsl.at(0),qsl.at(1).toInt());
     } else if (Data.left(2)=="t3") {
         Refresh();
-        ui->Message->setEnabled(false);
     } else if (Data[0]=='m') {
         QString n=Data.mid(1,Data.indexOf('\n')-1);
         History[n]+="<p style=\"text-align:left\"><font color=\"green\">"+QTime::currentTime().toString("hh:mm:ss")+' '+Data.mid(1).replace('\n',"<br>")+"</font></p>";
@@ -81,12 +84,15 @@ void MainWindow::RecvData(const QString&,unsigned short,const QByteArray &Data) 
 void MainWindow::SendMessage() {
     if (ui->Message->text()=="")
         return;
-    QString Message('m'+Nickname+'\n'+ui->Message->text());
-    History[RemoteNickname]+="<p style=\"text-align:right\"><font color=\"blue\">"+QTime::currentTime().toString("hh:mm:ss")+' '+Message.mid(1).replace('\n',"<br>")+"</font></p>";
+    QString Message(Nickname+'\n'+ui->Message->text());
+    History[RemoteNickname]+="<p style=\"text-align:right\"><font color=\"blue\">"+QTime::currentTime().toString("hh:mm:ss")+' '+QString(Message).replace('\n',"<br>")+"</font></p>";
     ui->History->setHtml(History[RemoteNickname]);
     CursorDown();
     ui->Message->setText("");
-    protocol->ConnectAndSend(RemoteIP,RemotePort,Message.toUtf8());
+    if (ServerIP=="127.0.0.1")
+        protocol->ConnectAndSend("127.0.0.1",ServerPort,('f'+RemoteNickname+'\n'+Message).toUtf8());
+    else
+        protocol->ConnectAndSend(RemoteIP,RemotePort,('m'+Message).toUtf8());
 }
 
 void MainWindow::Refresh() {
@@ -102,6 +108,7 @@ void MainWindow::closeEvent(QCloseEvent*) {
 void MainWindow::Touch(const QModelIndex &index) {
     ui->History->setHtml(History[index.data().toString()]);
     CursorDown();
+    ui->Message->setEnabled(false);
     protocol->ConnectAndSend(ServerIP,ServerPort,("t0"+index.data().toString()).toUtf8());
 }
 
