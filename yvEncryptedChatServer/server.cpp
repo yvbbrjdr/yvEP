@@ -27,7 +27,7 @@ Server::Server(unsigned short Port) {
 
 void Server::RecvData(const QString &IP,unsigned short Port,const QByteArray &Data) {
     if (Data.left(2)=="l0") {
-        if (Clients.find(Data.mid(2))==Clients.end()) {
+        if (Clients.find(Data.mid(2))==Clients.end()&&Data.mid(2)!="Broadcast") {
             Clients.insert(Data.mid(2),UserData(IP,Port));
             protocol->ConnectAndSend(IP,Port,"l1");
         } else
@@ -70,12 +70,14 @@ void Server::RecvData(const QString &IP,unsigned short Port,const QByteArray &Da
         for (QMap<QString,UserData>::iterator it=Clients.begin();it!=Clients.end();++it)
             if (it.value().IP=="127.0.0.1")
                 protocol->ConnectAndSend("127.0.0.1",it.value().Port,Data);
-    }
-    else if (Data[0]=='f') {
+    } else if (Data[0]=='f') {
         QString n(Data.mid(1,Data.indexOf('\n')-1));
         QMap<QString,UserData>::iterator it=Clients.find(n);
         if (it!=Clients.end())
             protocol->ConnectAndSend(it.value().IP,it.value().Port,'m'+Data.mid(Data.indexOf('\n')+1));
+    } else if (Data[0]=='b') {
+        for (QMap<QString,UserData>::iterator it=Clients.begin();it!=Clients.end();++it)
+            protocol->ConnectAndSend(it.value().IP,it.value().Port,Data);
     }
 }
 

@@ -78,6 +78,12 @@ void MainWindow::RecvData(const QString&,unsigned short,const QByteArray &Data) 
             DownLabel->setText(n+" sent you a message.");
         }
         activateWindow();
+    } else if (Data[0]=='b') {
+        History["Broadcast"]+="<p style=\"text-align:left\"><font color=\"green\">"+QTime::currentTime().toString("hh:mm:ss")+' '+Data.mid(1).replace('\n',"<br>")+"</font></p>";
+        if (RemoteNickname=="Broadcast") {
+            ui->History->setHtml(History["Broadcast"]);
+            CursorDown();
+        }
     }
 }
 
@@ -89,6 +95,10 @@ void MainWindow::SendMessage() {
     ui->History->setHtml(History[RemoteNickname]);
     CursorDown();
     ui->Message->setText("");
+    if (RemoteNickname=="Broadcast") {
+        protocol->ConnectAndSend(ServerIP,ServerPort,('b'+Message).toUtf8());
+        return;
+    }
     if (ServerIP=="127.0.0.1")
         protocol->ConnectAndSend("127.0.0.1",ServerPort,('f'+RemoteNickname+'\n'+Message).toUtf8());
     else
@@ -97,6 +107,7 @@ void MainWindow::SendMessage() {
 
 void MainWindow::Refresh() {
     Clients.clear();
+    Clients.push_back("Broadcast");
     UpdateClients();
     protocol->ConnectAndSend(ServerIP,ServerPort,"li");
 }
@@ -108,6 +119,12 @@ void MainWindow::closeEvent(QCloseEvent*) {
 void MainWindow::Touch(const QModelIndex &index) {
     ui->History->setHtml(History[index.data().toString()]);
     CursorDown();
+    if (index.data().toString()=="Broadcast") {
+        RemoteNickname="Broadcast";
+        ui->Message->setEnabled(true);
+        ui->Message->setFocus();
+        return;
+    }
     ui->Message->setEnabled(false);
     protocol->ConnectAndSend(ServerIP,ServerPort,("t0"+index.data().toString()).toUtf8());
 }
