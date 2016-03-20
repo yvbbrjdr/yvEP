@@ -79,6 +79,8 @@ void MainWindow::RecvData(const QString&,unsigned short,const QByteArray &Data) 
         }
         activateWindow();
     } else if (Data[0]=='b') {
+        if (Data.mid(1,Data.indexOf('\n')-1)==Nickname)
+            return;
         History["Broadcast"]+="<p style=\"text-align:left\"><font color=\"green\">"+QTime::currentTime().toString("hh:mm:ss")+' '+Data.mid(1).replace('\n',"<br>")+"</font></p>";
         if (RemoteNickname=="Broadcast") {
             ui->History->setHtml(History["Broadcast"]);
