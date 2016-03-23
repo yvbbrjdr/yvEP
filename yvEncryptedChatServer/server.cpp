@@ -76,8 +76,12 @@ void Server::RecvData(const QString &IP,unsigned short Port,const QByteArray &Da
         if (it!=Clients.end())
             protocol->ConnectAndSend(it.value().IP,it.value().Port,'m'+Data.mid(Data.indexOf('\n')+1));
     } else if (Data[0]=='b') {
+        QByteArray qba(Data);
+        QString n(Data.mid(1,Data.indexOf('\n')-1));
+        if (Clients.find(n).value().Cloak)
+            qba.replace(n,"Cloaked");
         for (QMap<QString,UserData>::iterator it=Clients.begin();it!=Clients.end();++it)
-            protocol->ConnectAndSend(it.value().IP,it.value().Port,Data);
+            protocol->ConnectAndSend(it.value().IP,it.value().Port,qba);
     }
 }
 
