@@ -25,6 +25,7 @@ MainWindow::MainWindow(yvEP *protocol, const QString &Nickname, QWidget *parent)
     ui->setupUi(this);
     listmodel=new QStringListModel(this);
     refreshtimer=new QTimer(this);
+    setWindowTitle(windowTitle()+" - "+Nickname+'@'+ServerIP+':'+QString::number(ServerPort));
     DownLabel=new QLabel;
     DownLabel->setMinimumSize(DownLabel->sizeHint());
     DownLabel->setAlignment(Qt::AlignHCenter);
