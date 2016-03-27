@@ -42,6 +42,7 @@ LoginDialog::~LoginDialog() {
 }
 
 void LoginDialog::LoginPressed() {
+    ui->LoginButton->setEnabled(false);
     QVariantMap qvm;
     qvm.insert("addr",ui->Address->text());
     qvm.insert("port",ui->Port->text().toInt());
@@ -52,7 +53,8 @@ void LoginDialog::LoginPressed() {
     stream<<QJsonDocument::fromVariant(qvm).toJson();
     config.close();
     if (!protocol) {
-        ui->TitleLabel->setText("Generating RSA key");
+        for (int i=0;i<1000;++i)
+            ui->TitleLabel->setText("Generating RSA key");
         QApplication::processEvents();
         protocol=new yvEP;
         connect(protocol,SIGNAL(RecvData(QString,unsigned short,QByteArray)),this,SLOT(RecvData(QString,unsigned short,QByteArray)));
@@ -66,8 +68,10 @@ void LoginDialog::LoginPressed() {
         ui->TitleLabel->setText("Connected");
         QApplication::processEvents();
         protocol->SendData(("l0"+ui->Nickname->text()).toUtf8());
-    } else
+    } else {
         ui->TitleLabel->setText("Failed");
+        ui->LoginButton->setEnabled(true);
+    }
 }
 
 void LoginDialog::RecvData(const QString&,unsigned short,const QByteArray &Data) {
@@ -76,6 +80,8 @@ void LoginDialog::RecvData(const QString&,unsigned short,const QByteArray &Data)
         MainWindow *w=new MainWindow(protocol,ui->Nickname->text());
         w->show();
         this->hide();
-    } else if (Data=="l2")
+    } else if (Data=="l2") {
         QMessageBox::critical(this,"Failed","Someone else used this nickname:\n"+ui->Nickname->text()+"\nYou have to change one.");
+        ui->LoginButton->setEnabled(true);
+    }
 }

@@ -57,6 +57,7 @@ private:
     void CursorDown();
     QLabel *DownLabel;
     void UpdateClients();
+    bool Cloaking;
 private slots:
     void RecvData(const QString&,unsigned short,const QByteArray &Data);
     void SendMessage();

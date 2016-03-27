@@ -21,7 +21,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 
-MainWindow::MainWindow(yvEP *protocol, const QString &Nickname, QWidget *parent):QMainWindow(parent),ui(new Ui::MainWindow),protocol(protocol),ServerIP(protocol->CurRemoteIP()),ServerPort(protocol->CurRemotePort()),Nickname(Nickname) {
+MainWindow::MainWindow(yvEP *protocol, const QString &Nickname, QWidget *parent):QMainWindow(parent),ui(new Ui::MainWindow),protocol(protocol),ServerIP(protocol->CurRemoteIP()),ServerPort(protocol->CurRemotePort()),Nickname(Nickname),Cloaking(false) {
     ui->setupUi(this);
     listmodel=new QStringListModel(this);
     refreshtimer=new QTimer(this);
@@ -87,6 +87,14 @@ void MainWindow::RecvData(const QString&,unsigned short,const QByteArray &Data) 
             ui->History->setHtml(History["Broadcast"]);
             CursorDown();
         }
+    } else if (Data.left(2)=="c1") {
+        Cloaking=1;
+        ui->CloakButton->setText("Decloak");
+        Refresh();
+    } else if (Data.left(2)=="c3") {
+        Cloaking=0;
+        ui->CloakButton->setText("Cloak");
+        Refresh();
     }
 }
 
@@ -94,6 +102,8 @@ void MainWindow::SendMessage() {
     if (ui->Message->text()=="")
         return;
     QString Message(Nickname+'\n'+ui->Message->text());
+    if (RemoteNickname=="Broadcast"&&Cloaking)
+        Message="Cloaked\n"+ui->Message->text();
     History[RemoteNickname]+="<p style=\"text-align:right\"><font color=\"blue\">"+QTime::currentTime().toString("hh:mm:ss")+' '+QString(Message).replace('\n',"<br>")+"</font></p>";
     ui->History->setHtml(History[RemoteNickname]);
     CursorDown();
@@ -144,6 +154,8 @@ void MainWindow::UpdateClients() {
 }
 
 void MainWindow::Cloak() {
-    protocol->ConnectAndSend(ServerIP,ServerPort,("l4"+Nickname).toUtf8());
-    Refresh();
+    QByteArray qba=("c0"+Nickname).toUtf8();
+    if (Cloaking)
+        qba[1]='2';
+    protocol->ConnectAndSend(ServerIP,ServerPort,qba);
 }

@@ -52,12 +52,6 @@ void Server::RecvData(const QString &IP,unsigned short Port,const QByteArray &Da
         if (it!=Clients.end()&&it.value().IP==IP&&it.value().Port==Port) {
             Clients.erase(it);
         }
-    } else if (Data.left(2)=="l4") {
-        QString n(Data.mid(2));
-        QMap<QString,UserData>::iterator it=Clients.find(n);
-        if (it!=Clients.end()&&it.value().IP==IP&&it.value().Port==Port) {
-            it.value().Cloak=!it.value().Cloak;
-        }
     } else if (Data.left(2)=="t0") {
         if (Clients.find(Data.mid(2))==Clients.end()||Clients.find(Data.mid(2)).value().Cloak)
             protocol->ConnectAndSend(IP,Port,"t3");
@@ -76,12 +70,23 @@ void Server::RecvData(const QString &IP,unsigned short Port,const QByteArray &Da
         if (it!=Clients.end())
             protocol->ConnectAndSend(it.value().IP,it.value().Port,'m'+Data.mid(Data.indexOf('\n')+1));
     } else if (Data[0]=='b') {
-        QByteArray qba(Data);
-        QString n(Data.mid(1,Data.indexOf('\n')-1));
-        if (Clients.find(n).value().Cloak)
-            qba.replace(n,"Cloaked");
         for (QMap<QString,UserData>::iterator it=Clients.begin();it!=Clients.end();++it)
-            protocol->ConnectAndSend(it.value().IP,it.value().Port,qba);
+            if (it.value().IP!=IP||it.value().Port!=Port)
+                protocol->ConnectAndSend(it.value().IP,it.value().Port,Data);
+    } else if (Data.left(2)=="c0") {
+        QString n(Data.mid(2));
+        QMap<QString,UserData>::iterator it=Clients.find(n);
+        if (it!=Clients.end()&&it.value().IP==IP&&it.value().Port==Port&&it.value().Cloak==false) {
+            it.value().Cloak=true;
+            protocol->ConnectAndSend(IP,Port,"c1");
+        }
+    } else if (Data.left(2)=="c2") {
+        QString n(Data.mid(2));
+        QMap<QString,UserData>::iterator it=Clients.find(n);
+        if (it!=Clients.end()&&it.value().IP==IP&&it.value().Port==Port&&it.value().Cloak==true) {
+            it.value().Cloak=false;
+            protocol->ConnectAndSend(IP,Port,"c3");
+        }
     }
 }
 
