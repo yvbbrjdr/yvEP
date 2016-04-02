@@ -36,10 +36,11 @@ class YVENCRYPTEDPROTOCOLSHARED_EXPORT yvEP : public QObject {
 public:
     explicit yvEP(unsigned short Port=0,QObject *parent=0);
     ~yvEP();
+    bool Bound();
     QString CurRemoteIP();
     unsigned short CurRemotePort();
     bool ConnectTo(const QString &IP,unsigned short Port);
-    void SendData(const QByteArray &Data);
+    bool SendData(const QByteArray &Data);
     bool ConnectAndSend(const QString &IP,unsigned short Port,const QByteArray &Data);
 private:
     UdpSocket *socket;
@@ -48,6 +49,7 @@ private:
     QString RemoteIP;
     unsigned short RemotePort;
     QByteArray PublicKey;
+    bool connecting;
 signals:
     void RecvData(const QString &IP,unsigned short Port,const QByteArray &Data);
     void ConnectYou(const QString &IP,unsigned short Port);

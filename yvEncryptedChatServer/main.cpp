@@ -36,6 +36,10 @@ int main(int argc, char *argv[]) {
     printf("Welcome to yvEncryptedChatServer\n\nServer will be listening at Port %d\nGenerating RSA Key. . . ",Port);
     fflush(stdout);
     MainThread thread(Port);
+    if (!thread.server->protocol->Bound()) {
+        printf("Done\nFailed to bind to Port %d, exiting. . . \n",Port);
+        exit(0);
+    }
     thread.start();
     puts("Done!\n\nEnter nickname to logout");
     return a.exec();

@@ -108,14 +108,15 @@ void MainWindow::SendMessage() {
     ui->History->setHtml(History[RemoteNickname]);
     CursorDown();
     ui->Message->setText("");
-    if (RemoteNickname=="Broadcast") {
-        protocol->ConnectAndSend(ServerIP,ServerPort,('b'+Message).toUtf8());
-        return;
-    }
-    if (ServerIP=="127.0.0.1")
-        protocol->ConnectAndSend("127.0.0.1",ServerPort,('f'+RemoteNickname+'\n'+Message).toUtf8());
+    bool success;
+    if (RemoteNickname=="Broadcast")
+        success=protocol->ConnectAndSend(ServerIP,ServerPort,('b'+Message).toUtf8());
+    else if (ServerIP=="127.0.0.1")
+        success=protocol->ConnectAndSend("127.0.0.1",ServerPort,('f'+RemoteNickname+'\n'+Message).toUtf8());
     else
-        protocol->ConnectAndSend(RemoteIP,RemotePort,('m'+Message).toUtf8());
+        success=protocol->ConnectAndSend(RemoteIP,RemotePort,('m'+Message).toUtf8());
+    if (!success)
+        QMessageBox::critical(this,"Error","You message is too long.\nTruncate it.");
 }
 
 void MainWindow::Refresh() {

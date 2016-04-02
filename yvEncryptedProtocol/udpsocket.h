@@ -27,8 +27,11 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 class UdpSocket : public QUdpSocket {
     Q_OBJECT
+private:
+    bool bound;
 public:
     explicit UdpSocket(unsigned short Port=0,QObject *parent=0);
+    bool Bound();
     ~UdpSocket();
 signals:
     void RecvData(const QString &IP,unsigned short Port,const QByteArray &Data);

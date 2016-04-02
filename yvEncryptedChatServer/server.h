@@ -29,8 +29,8 @@ class Server : public QObject {
     Q_OBJECT
 public:
     Server(unsigned short Port);
-private:
     yvEP *protocol;
+private:
     QMap<QString,UserData>Clients;
 private slots:
     void RecvData(const QString &IP,unsigned short Port,const QByteArray &Data);

@@ -61,9 +61,6 @@
       <height>25</height>
      </rect>
     </property>
-    <property name="maxLength">
-     <number>480</number>
-    </property>
    </widget>
    <widget class="QListView" name="ClientList">
     <property name="geometry">

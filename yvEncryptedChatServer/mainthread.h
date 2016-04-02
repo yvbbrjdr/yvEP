@@ -29,10 +29,9 @@ class MainThread : public QThread {
     Q_OBJECT
 public:
     MainThread(unsigned short Port);
+    Server *server;
 protected:
     void run();
-private:
-    Server *server;
 signals:
     void RemoveClient(const QString &Nickname);
 };
