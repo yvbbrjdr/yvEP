@@ -42,6 +42,10 @@ LoginDialog::~LoginDialog() {
 }
 
 void LoginDialog::LoginPressed() {
+    if (ui->Address->text()==""||ui->Port->text()==""||ui->Nickname->text()=="") {
+        QMessageBox::aboutQt(this,"About Qt");
+        return;
+    }
     ui->LoginButton->setEnabled(false);
     QVariantMap qvm;
     qvm.insert("addr",ui->Address->text());
