@@ -122,6 +122,7 @@ void Server::RemoveClient(const QString &Nickname) {
     QMap<QString,UserData>::iterator it=Clients.find(Nickname);
     if (it!=Clients.end()) {
         Log(QString("%1(%2:%3) is forced to log off").arg(Nickname).arg(it.value().IP).arg(it.value().Port));
+        protocol->ConnectAndSend(it.value().IP,it.value().Port,"l3");
         Clients.remove(Nickname);
     } else {
         Log(QString("%1 is not found").arg(Nickname));

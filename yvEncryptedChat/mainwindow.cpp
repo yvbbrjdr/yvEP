@@ -95,6 +95,8 @@ void MainWindow::RecvData(const QString&,unsigned short,const QByteArray &Data) 
         Cloaking=0;
         ui->CloakButton->setText("Cloak");
         Refresh();
+    } else if (Data.left(2)=="l3") {
+        QApplication::quit();
     }
 }
 
