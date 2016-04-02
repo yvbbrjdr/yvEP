@@ -23,6 +23,8 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 #include <QObject>
 #include <yvep.h>
+#include <cstdio>
+#include <QDateTime>
 #include "userdata.h"
 
 class Server : public QObject {
@@ -32,6 +34,7 @@ public:
     yvEP *protocol;
 private:
     QMap<QString,UserData>Clients;
+    void Log(const QString &Content);
 private slots:
     void RecvData(const QString &IP,unsigned short Port,const QByteArray &Data);
     void RemoveClient(const QString &Nickname);

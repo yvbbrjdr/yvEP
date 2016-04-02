@@ -116,7 +116,7 @@ void MainWindow::SendMessage() {
     else
         success=protocol->ConnectAndSend(RemoteIP,RemotePort,('m'+Message).toUtf8());
     if (!success)
-        QMessageBox::critical(this,"Error","You message is too long.\nTruncate it.");
+        QMessageBox::critical(this,"Error","Failed to deliver this message\nPossible reasons:\nThe message is too long\nThe user has logged off");
 }
 
 void MainWindow::Refresh() {
