@@ -22,6 +22,4 @@ HEADERS += yvep.h\
 
 DESTDIR += ../lib
 
-unix: LIBS += -lcrypto
-
-win32: LIBS += -leay32
+LIBS += -lsodium
