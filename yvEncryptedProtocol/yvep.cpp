@@ -61,7 +61,7 @@ bool yvEP::ConnectTo(const QString &IP,unsigned short Port) {
 }
 
 bool yvEP::SendData(const QByteArray &Data) {
-    if (RemoteIP==""||crypto_box_MACBYTES+Data.length()+crypto_box_NONCEBYTES+crypto_box_PUBLICKEYBYTES>500)
+    if (RemoteIP==""||crypto_box_MACBYTES+Data.length()+crypto_box_NONCEBYTES+crypto_box_PUBLICKEYBYTES>570)
         return false;
     QByteArray nonce(crypto_box_NONCEBYTES,0),t(crypto_box_MACBYTES+Data.length(),0);
     randombytes_buf(nonce.data(),nonce.length());
