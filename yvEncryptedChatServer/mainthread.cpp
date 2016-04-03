@@ -28,7 +28,7 @@ MainThread::MainThread(unsigned short Port) {
 void MainThread::run() {
     while (1) {
         char tmp[20];
-        QString n(fgets(tmp,17,stdin));
+        QString n(fgets(tmp,18,stdin));
         n=n.left(n.length()-1);
         emit RemoveClient(n);
     }
