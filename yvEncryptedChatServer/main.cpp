@@ -33,11 +33,11 @@ int main(int argc, char *argv[]) {
     unsigned short Port=2428;
     if (argc==2)
         Port=QString(argv[1]).toShort();
-    printf("Welcome to yvEncryptedChatServer\n\nServer will be listening at Port %d\nGenerating RSA Key. . . ",Port);
+    printf("Welcome to yvEncryptedChatServer\n\nServer will be listening at Port %d\nGenerating Key. . . ",Port);
     fflush(stdout);
     MainThread thread(Port);
     if (!thread.server->protocol->Bound()) {
-        printf("Done\nFailed to bind to Port %d, exiting. . . \n",Port);
+        printf("Done!\nFailed to bind to Port %d, exiting. . . \n",Port);
         exit(0);
     }
     thread.start();

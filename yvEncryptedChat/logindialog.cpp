@@ -35,6 +35,8 @@ LoginDialog::LoginDialog(QWidget *parent):QDialog(parent),ui(new Ui::LoginDialog
         ui->LoginButton->setFocus();
     }
     connect(ui->LoginButton,SIGNAL(clicked(bool)),this,SLOT(LoginPressed()));
+    protocol=new yvEP;
+    connect(protocol,SIGNAL(RecvData(QString,unsigned short,QByteArray)),this,SLOT(RecvData(QString,unsigned short,QByteArray)));
 }
 
 LoginDialog::~LoginDialog() {
@@ -56,13 +58,6 @@ void LoginDialog::LoginPressed() {
     QTextStream stream(&config);
     stream<<QJsonDocument::fromVariant(qvm).toJson();
     config.close();
-    if (!protocol) {
-        for (int i=0;i<1000;++i)
-            ui->TitleLabel->setText("Generating RSA key");
-        QApplication::processEvents();
-        protocol=new yvEP;
-        connect(protocol,SIGNAL(RecvData(QString,unsigned short,QByteArray)),this,SLOT(RecvData(QString,unsigned short,QByteArray)));
-    }
     ui->TitleLabel->setText("Connecting");
     QApplication::processEvents();
     QString IP=ui->Address->text();

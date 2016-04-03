@@ -24,7 +24,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #include "yvencryptedprotocol_global.h"
 #include <QObject>
 #include <QByteArray>
-#include <openssl/rsa.h>
+#include <sodium.h>
 #include <QString>
 #include <QThread>
 #include <QTime>
@@ -45,10 +45,9 @@ public:
 private:
     UdpSocket *socket;
     QThread *thread;
-    RSA *LocalRSA,*RemoteRSA;
     QString RemoteIP;
     unsigned short RemotePort;
-    QByteArray PublicKey;
+    QByteArray LocalPublicKey,LocalPrivateKey,RemotePublicKey;
     bool connecting;
 signals:
     void RecvData(const QString &IP,unsigned short Port,const QByteArray &Data);
