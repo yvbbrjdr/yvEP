@@ -24,7 +24,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 LoginDialog::LoginDialog(QWidget *parent):QDialog(parent),ui(new Ui::LoginDialog),protocol(NULL) {
     ui->setupUi(this);
     ui->Address->setFocus();
-    QFile config(QDir("./yvEC.config").absolutePath());
+    QFile config(QApplication::applicationDirPath()+"/yvEC.config");
     if (config.open(QIODevice::ReadOnly|QIODevice::Text)) {
         QTextStream stream(&config);
         QVariantMap qvm(QJsonDocument::fromJson(stream.readAll().toUtf8()).toVariant().toMap());
@@ -53,7 +53,7 @@ void LoginDialog::LoginPressed() {
     qvm.insert("addr",ui->Address->text());
     qvm.insert("port",ui->Port->text().toInt());
     qvm.insert("name",ui->Nickname->text());
-    QFile config(QDir("./yvEC.config").absolutePath());
+    QFile config(QApplication::applicationDirPath()+"/yvEC.config");
     config.open(QIODevice::WriteOnly|QIODevice::Text);
     QTextStream stream(&config);
     stream<<QJsonDocument::fromVariant(qvm).toJson();

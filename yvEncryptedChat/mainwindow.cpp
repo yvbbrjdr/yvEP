@@ -32,7 +32,7 @@ MainWindow::MainWindow(yvEP *protocol, const QString &Nickname, QWidget *parent)
     ui->statusBar->addWidget(DownLabel);
     ui->statusBar->setStyleSheet("QStatusBar::item{border: 0px}");
     Notification=new QMediaPlayer(this);
-    Notification->setMedia(QUrl::fromLocalFile(QDir("./notification.wav").absolutePath()));
+    Notification->setMedia(QUrl::fromLocalFile(QApplication::applicationDirPath()+"/notification.wav"));
     Notification->setVolume(100);
     connect(protocol,SIGNAL(RecvData(QString,unsigned short,QByteArray)),this,SLOT(RecvData(QString,unsigned short,QByteArray)));
     connect(ui->Message,SIGNAL(returnPressed()),this,SLOT(SendMessage()));
