@@ -31,6 +31,8 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #include <QMap>
 #include <QTextCursor>
 #include <QLabel>
+#include <QMediaPlayer>
+#include <QDir>
 
 namespace Ui {
     class MainWindow;
@@ -58,6 +60,7 @@ private:
     QLabel *DownLabel;
     void UpdateClients();
     bool Cloaking;
+    QMediaPlayer *Notification;
 private slots:
     void RecvData(const QString&,unsigned short,const QByteArray &Data);
     void SendMessage();

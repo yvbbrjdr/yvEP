@@ -31,6 +31,9 @@ MainWindow::MainWindow(yvEP *protocol, const QString &Nickname, QWidget *parent)
     DownLabel->setAlignment(Qt::AlignHCenter);
     ui->statusBar->addWidget(DownLabel);
     ui->statusBar->setStyleSheet("QStatusBar::item{border: 0px}");
+    Notification=new QMediaPlayer(this);
+    Notification->setMedia(QUrl::fromLocalFile(QDir("./notification.wav").absolutePath()));
+    Notification->setVolume(100);
     connect(protocol,SIGNAL(RecvData(QString,unsigned short,QByteArray)),this,SLOT(RecvData(QString,unsigned short,QByteArray)));
     connect(ui->Message,SIGNAL(returnPressed()),this,SLOT(SendMessage()));
     connect(ui->RefreshButton,SIGNAL(clicked(bool)),this,SLOT(Refresh()));
@@ -79,6 +82,10 @@ void MainWindow::RecvData(const QString&,unsigned short,const QByteArray &Data) 
             DownLabel->setText(n+" sent you a message.");
         }
         activateWindow();
+        if (Notification->isAudioAvailable()) {
+            Notification->stop();
+            Notification->play();
+        }
     } else if (Data[0]=='b') {
         if (Data.mid(1,Data.indexOf('\n')-1)==Nickname)
             return;
