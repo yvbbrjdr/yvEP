@@ -29,6 +29,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #include <QThread>
 #include <QTime>
 #include <QCoreApplication>
+#include <QMap>
 #include "udpsocket.h"
 
 class YVENCRYPTEDPROTOCOLSHARED_EXPORT yvEP : public QObject {
@@ -49,6 +50,7 @@ private:
     unsigned short RemotePort;
     QByteArray LocalPublicKey,LocalPrivateKey,RemotePublicKey;
     bool connecting;
+    QMap<QPair<QString,unsigned short>,QByteArray>PublicKeys;
 signals:
     void RecvData(const QString &IP,unsigned short Port,const QByteArray &Data);
     void ConnectYou(const QString &IP,unsigned short Port);

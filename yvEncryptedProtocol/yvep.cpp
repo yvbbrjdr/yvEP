@@ -48,10 +48,17 @@ bool yvEP::ConnectTo(const QString &IP,unsigned short Port) {
         return true;
     if (connecting)
         return false;
-    connecting=true;
+    QMap<QPair<QString,unsigned short>,QByteArray>::iterator it=PublicKeys.find(QPair<QString,unsigned short>(IP,Port));
+    if (it!=PublicKeys.end()) {
+        RemoteIP=IP;
+        RemotePort=Port;
+        RemotePublicKey=it.value();
+        return true;
+    }
     emit socket->SendData(IP,Port,"0");
     QTime t=QTime::currentTime();
     t.start();
+    connecting=true;
     while (t.elapsed()<1000&&(RemoteIP!=IP||RemotePort!=Port))
         QCoreApplication::processEvents();
     connecting=false;
@@ -92,6 +99,7 @@ void yvEP::ProcessData(const QString &IP,unsigned short Port,const QByteArray &D
         RemoteIP=IP;
         RemotePort=Port;
         RemotePublicKey=Data.mid(1);
+        PublicKeys[QPair<QString,unsigned short>(IP,Port)]=RemotePublicKey;
     } else if (op=='2') {
         QByteArray qba=Data.mid(1);
         QByteArray pubkey(qba.right(crypto_box_PUBLICKEYBYTES));
