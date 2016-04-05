@@ -44,6 +44,7 @@ public:
 private:
     Ui::LoginDialog *ui;
     yvEP *protocol;
+    QString ServerIP;
 private slots:
     void LoginPressed();
     void RecvData(const QString&,unsigned short,const QByteArray &Data);

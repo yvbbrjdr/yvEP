@@ -1,6 +1,6 @@
 /*
 This file is part of yvEncryptedProtocol
-yvEncryptedProtocol is an Internet protocol that provides secure connections between computers. 
+yvEncryptedProtocol is an Internet protocol that provides secure connections between computers.
 Copyright (C) 2016  yvbbrjdr
 
 This program is free software; you can redistribute it and/or modify
@@ -20,101 +20,91 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 #include "yvep.h"
 
-yvEP::yvEP(unsigned short Port,QObject *parent):QObject(parent),LocalPublicKey(crypto_box_PUBLICKEYBYTES,0),LocalPrivateKey(crypto_box_SECRETKEYBYTES,0),RemotePublicKey(crypto_box_PUBLICKEYBYTES,0) {
-    connecting=false;
-    socket=new UdpSocket(Port);
-    thread=new QThread(this);
-    RemotePort=0;
-    crypto_box_keypair((unsigned char*)LocalPublicKey.data(),(unsigned char*)LocalPrivateKey.data());
+yvEP::yvEP(unsigned short Port,QObject *parent):QObject(parent),socket(new UdpSocket(Port)),thread(new QThread(this)),LocalPublicKey(crypto_box_PUBLICKEYBYTES,0),LocalPrivateKey(crypto_box_SECRETKEYBYTES,0),KeyPrepared(false),Connecting(false) {
     connect(socket,SIGNAL(RecvData(QString,unsigned short,QByteArray)),this,SLOT(ProcessData(QString,unsigned short,QByteArray)));
     socket->moveToThread(thread);
     thread->start();
-}
-
-bool yvEP::Bound() {
-    return socket->Bound();
-}
-
-QString yvEP::CurRemoteIP() {
-    return RemoteIP;
-}
-
-unsigned short yvEP::CurRemotePort() {
-    return RemotePort;
-}
-
-bool yvEP::ConnectTo(const QString &IP,unsigned short Port) {
-    if (RemoteIP==IP&&RemotePort==Port)
-        return true;
-    if (connecting)
-        return false;
-    QMap<QPair<QString,unsigned short>,QByteArray>::iterator it=PublicKeys.find(QPair<QString,unsigned short>(IP,Port));
-    if (it!=PublicKeys.end()) {
-        RemoteIP=IP;
-        RemotePort=Port;
-        RemotePublicKey=it.value();
-        return true;
-    }
-    emit socket->SendData(IP,Port,"0");
-    QTime t=QTime::currentTime();
-    t.start();
-    connecting=true;
-    while (t.elapsed()<1000&&(RemoteIP!=IP||RemotePort!=Port))
-        QCoreApplication::processEvents();
-    connecting=false;
-    if (RemoteIP==IP&&RemotePort==Port)
-        return true;
-    return false;
-}
-
-bool yvEP::SendData(const QByteArray &Data) {
-    if (RemoteIP==""||crypto_box_MACBYTES+Data.length()+crypto_box_NONCEBYTES+crypto_box_PUBLICKEYBYTES>570)
-        return false;
-    QByteArray nonce(crypto_box_NONCEBYTES,0),t(crypto_box_MACBYTES+Data.length(),0);
-    randombytes_buf(nonce.data(),nonce.length());
-    if (crypto_box_easy((unsigned char*)t.data(),(unsigned char*)Data.data(),Data.length(),(unsigned char*)nonce.data(),(unsigned char*)RemotePublicKey.data(),(unsigned char*)LocalPrivateKey.data()))
-        return false;
-    QByteArray qba("2");
-    qba.append(t);
-    qba.append(nonce);
-    qba.append(LocalPublicKey);
-    emit socket->SendData(RemoteIP,RemotePort,qba);
-    return true;
-}
-
-bool yvEP::ConnectAndSend(const QString &IP,unsigned short Port,const QByteArray &Data) {
-    if (!ConnectTo(IP,Port))
-        return false;
-    return SendData(Data);
-}
-
-void yvEP::ProcessData(const QString &IP,unsigned short Port,const QByteArray &Data) {
-    char op=Data.at(0);
-    if (op=='0') {
-        QByteArray qba("1");
-        qba.append(LocalPublicKey);
-        emit socket->SendData(IP,Port,qba);
-        emit ConnectYou(IP,Port);
-    } else if (op=='1') {
-        RemoteIP=IP;
-        RemotePort=Port;
-        RemotePublicKey=Data.mid(1);
-        PublicKeys[QPair<QString,unsigned short>(IP,Port)]=RemotePublicKey;
-    } else if (op=='2') {
-        QByteArray qba=Data.mid(1);
-        QByteArray pubkey(qba.right(crypto_box_PUBLICKEYBYTES));
-        qba=qba.left(qba.length()-crypto_box_PUBLICKEYBYTES);
-        QByteArray nonce(qba.right(crypto_box_NONCEBYTES));
-        qba=qba.left(qba.length()-crypto_box_NONCEBYTES);
-        QByteArray t(qba.length()-crypto_box_MACBYTES,0);
-        if (crypto_box_open_easy((unsigned char*)t.data(),(unsigned char*)qba.data(),qba.length(),(unsigned char*)nonce.data(),(unsigned char*)pubkey.data(),(unsigned char*)LocalPrivateKey.data()))
-            return;
-        emit RecvData(IP,Port,t);
-    }
 }
 
 yvEP::~yvEP() {
     thread->quit();
     thread->wait();
     socket->deleteLater();
+}
+
+bool yvEP::Bound() {
+    return socket->Bound();
+}
+
+void yvEP::GenerateKey() {
+    crypto_box_keypair((unsigned char*)LocalPublicKey.data(),(unsigned char*)LocalPrivateKey.data());
+    KeyPrepared=true;
+}
+
+bool yvEP::LoadKey(const QString &Filename) {
+    QFile file(Filename);
+    if (!file.open(QIODevice::ReadOnly))
+        return false;
+    LocalPublicKey=file.read(crypto_box_PUBLICKEYBYTES);
+    LocalPrivateKey=file.read(crypto_box_SECRETKEYBYTES);
+    file.close();
+    return KeyPrepared=true;
+}
+
+bool yvEP::SaveKey(const QString &Filename) {
+    if (!KeyPrepared)
+        return false;
+    QFile file(Filename);
+    if (!file.open(QIODevice::WriteOnly))
+        return false;
+    file.write(LocalPublicKey);
+    file.write(LocalPrivateKey);
+    file.close();
+    return true;
+}
+
+bool yvEP::SendData(const QString &IP,unsigned short Port,const QByteArray &Data) {
+    if (!KeyPrepared)
+        return false;
+    if (crypto_box_MACBYTES+Data.length()+crypto_box_NONCEBYTES>570)
+        return false;
+    QMap<QPair<QString,unsigned short>,QByteArray>::iterator it=PublicKeys.find(QPair<QString,unsigned short>(IP,Port));
+    if (it==PublicKeys.end()) {
+        if (Connecting)
+            return false;
+        emit socket->SendData(IP,Port,'0'+LocalPublicKey);
+        QTime t=QTime::currentTime();
+        t.start();
+        Connecting=true;
+        while (t.elapsed()<1000&&(it=PublicKeys.find(QPair<QString,unsigned short>(IP,Port)))==PublicKeys.end())
+            QCoreApplication::processEvents();
+        Connecting=false;
+        if (it==PublicKeys.end())
+            return false;
+    }
+    QByteArray nonce(crypto_box_NONCEBYTES,0),t(crypto_box_MACBYTES+Data.length(),0);
+    randombytes_buf(nonce.data(),nonce.length());
+    if (crypto_box_easy((unsigned char*)t.data(),(unsigned char*)Data.data(),Data.length(),(unsigned char*)nonce.data(),(unsigned char*)it.value().data(),(unsigned char*)LocalPrivateKey.data()))
+        return false;
+    emit socket->SendData(IP,Port,'2'+t+nonce);
+    return true;
+}
+
+void yvEP::ProcessData(const QString &IP,unsigned short Port,const QByteArray &Data) {
+    char op=Data[0];
+    QByteArray qba=Data.mid(1);
+    if (op=='0') {
+        PublicKeys[QPair<QString,unsigned short>(IP,Port)]=qba;
+        emit socket->SendData(IP,Port,'1'+LocalPublicKey);
+    } else if (op=='1') {
+        PublicKeys[QPair<QString,unsigned short>(IP,Port)]=qba;
+    } else if (op=='2') {
+        QByteArray t(qba.length()-crypto_box_MACBYTES-crypto_box_NONCEBYTES,0);
+        QMap<QPair<QString,unsigned short>,QByteArray>::iterator it=PublicKeys.find(QPair<QString,unsigned short>(IP,Port));
+        if (it==PublicKeys.end())
+            return;
+        if (crypto_box_open_easy((unsigned char*)t.data(),(unsigned char*)qba.data(),qba.length()-crypto_box_NONCEBYTES,(unsigned char*)qba.data()+qba.length()-crypto_box_NONCEBYTES,(unsigned char*)it.value().data(),(unsigned char*)LocalPrivateKey.data()))
+            return;
+        emit RecvData(IP,Port,t);
+    }
 }

@@ -21,7 +21,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 
-MainWindow::MainWindow(yvEP *protocol, const QString &Nickname, QWidget *parent):QMainWindow(parent),ui(new Ui::MainWindow),protocol(protocol),ServerIP(protocol->CurRemoteIP()),ServerPort(protocol->CurRemotePort()),Nickname(Nickname),Cloaking(false) {
+MainWindow::MainWindow(yvEP *protocol,const QString &ServerIP,unsigned short ServerPort,const QString &Nickname,QWidget *parent):QMainWindow(parent),ui(new Ui::MainWindow),protocol(protocol),ServerIP(ServerIP),ServerPort(ServerPort),Nickname(Nickname),Cloaking(false) {
     ui->setupUi(this);
     listmodel=new QStringListModel(this);
     refreshtimer=new QTimer(this);
@@ -69,7 +69,7 @@ void MainWindow::RecvData(const QString&,unsigned short,const QByteArray &Data) 
         }
     } else if (Data.left(2)=="t2") {
         QStringList qsl=QString(Data.mid(2)).split(":");
-        protocol->ConnectTo(qsl.at(0),qsl.at(1).toInt());
+        protocol->SendData(qsl.at(0),qsl.at(1).toInt(),"hello");
     } else if (Data.left(2)=="t3") {
         Refresh();
     } else if (Data[0]=='m') {
@@ -119,11 +119,11 @@ void MainWindow::SendMessage() {
     ui->Message->setText("");
     bool success;
     if (RemoteNickname=="Broadcast")
-        success=protocol->ConnectAndSend(ServerIP,ServerPort,('b'+Message).toUtf8());
+        success=protocol->SendData(ServerIP,ServerPort,('b'+Message).toUtf8());
     else if (ServerIP=="127.0.0.1")
-        success=protocol->ConnectAndSend("127.0.0.1",ServerPort,('f'+RemoteNickname+'\n'+Message).toUtf8());
+        success=protocol->SendData("127.0.0.1",ServerPort,('f'+RemoteNickname+'\n'+Message).toUtf8());
     else
-        success=protocol->ConnectAndSend(RemoteIP,RemotePort,('m'+Message).toUtf8());
+        success=protocol->SendData(RemoteIP,RemotePort,('m'+Message).toUtf8());
     if (!success)
         QMessageBox::critical(this,"Error","Failed to deliver this message\nPossible reasons:\nThe message is too long\nThe user has logged off");
 }
@@ -132,11 +132,11 @@ void MainWindow::Refresh() {
     Clients.clear();
     Clients.push_back("Broadcast");
     UpdateClients();
-    protocol->ConnectAndSend(ServerIP,ServerPort,"li");
+    protocol->SendData(ServerIP,ServerPort,"li");
 }
 
 void MainWindow::closeEvent(QCloseEvent*) {
-    protocol->ConnectAndSend(ServerIP,ServerPort,("l3"+Nickname).toUtf8());
+    protocol->SendData(ServerIP,ServerPort,("l3"+Nickname).toUtf8());
 }
 
 void MainWindow::Touch(const QModelIndex &index) {
@@ -149,7 +149,7 @@ void MainWindow::Touch(const QModelIndex &index) {
         return;
     }
     ui->Message->setEnabled(false);
-    protocol->ConnectAndSend(ServerIP,ServerPort,("t0"+index.data().toString()).toUtf8());
+    protocol->SendData(ServerIP,ServerPort,("t0"+index.data().toString()).toUtf8());
 }
 
 void MainWindow::CursorDown() {
@@ -167,5 +167,5 @@ void MainWindow::Cloak() {
     QByteArray qba=("c0"+Nickname).toUtf8();
     if (Cloaking)
         qba[1]='2';
-    protocol->ConnectAndSend(ServerIP,ServerPort,qba);
+    protocol->SendData(ServerIP,ServerPort,qba);
 }

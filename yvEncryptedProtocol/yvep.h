@@ -30,6 +30,8 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #include <QTime>
 #include <QCoreApplication>
 #include <QMap>
+#include <QFile>
+#include <QDataStream>
 #include "udpsocket.h"
 
 class YVENCRYPTEDPROTOCOLSHARED_EXPORT yvEP : public QObject {
@@ -38,22 +40,18 @@ public:
     explicit yvEP(unsigned short Port=0,QObject *parent=0);
     ~yvEP();
     bool Bound();
-    QString CurRemoteIP();
-    unsigned short CurRemotePort();
-    bool ConnectTo(const QString &IP,unsigned short Port);
-    bool SendData(const QByteArray &Data);
-    bool ConnectAndSend(const QString &IP,unsigned short Port,const QByteArray &Data);
+    void GenerateKey();
+    bool LoadKey(const QString &Filename);
+    bool SaveKey(const QString &Filename);
+    bool SendData(const QString &IP,unsigned short Port,const QByteArray &Data);
 private:
     UdpSocket *socket;
     QThread *thread;
-    QString RemoteIP;
-    unsigned short RemotePort;
-    QByteArray LocalPublicKey,LocalPrivateKey,RemotePublicKey;
-    bool connecting;
+    QByteArray LocalPublicKey,LocalPrivateKey;
+    bool KeyPrepared,Connecting;
     QMap<QPair<QString,unsigned short>,QByteArray>PublicKeys;
 signals:
     void RecvData(const QString &IP,unsigned short Port,const QByteArray &Data);
-    void ConnectYou(const QString &IP,unsigned short Port);
 private slots:
     void ProcessData(const QString &IP,unsigned short Port,const QByteArray &Data);
 };

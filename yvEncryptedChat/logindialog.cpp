@@ -36,6 +36,10 @@ LoginDialog::LoginDialog(QWidget *parent):QDialog(parent),ui(new Ui::LoginDialog
     }
     connect(ui->LoginButton,SIGNAL(clicked(bool)),this,SLOT(LoginPressed()));
     protocol=new yvEP;
+    if (!protocol->LoadKey(QApplication::applicationDirPath()+"/yvEC.key")) {
+        protocol->GenerateKey();
+        protocol->SaveKey(QApplication::applicationDirPath()+"/yvEC.key");
+    }
     connect(protocol,SIGNAL(RecvData(QString,unsigned short,QByteArray)),this,SLOT(RecvData(QString,unsigned short,QByteArray)));
 }
 
@@ -60,13 +64,12 @@ void LoginDialog::LoginPressed() {
     config.close();
     ui->TitleLabel->setText("Connecting");
     QApplication::processEvents();
-    QString IP=ui->Address->text();
-    if (!IP.at(0).isDigit())
-        IP=QHostInfo::fromName(IP).addresses().first().toString();
-    if (protocol->ConnectTo(IP,ui->Port->text().toInt())) {
+    ServerIP=ui->Address->text();
+    if (!ServerIP.at(0).isDigit())
+        ServerIP=QHostInfo::fromName(ServerIP).addresses().first().toString();
+    if (protocol->SendData(ServerIP,ui->Port->text().toInt(),("l0"+ui->Nickname->text()).toUtf8())) {
         ui->TitleLabel->setText("Connected");
         QApplication::processEvents();
-        protocol->SendData(("l0"+ui->Nickname->text()).toUtf8());
     } else {
         ui->TitleLabel->setText("Failed");
         ui->LoginButton->setEnabled(true);
@@ -76,7 +79,7 @@ void LoginDialog::LoginPressed() {
 void LoginDialog::RecvData(const QString&,unsigned short,const QByteArray &Data) {
     if (Data=="l1") {
         disconnect(protocol,SIGNAL(RecvData(QString,unsigned short,QByteArray)),this,SLOT(RecvData(QString,unsigned short,QByteArray)));
-        MainWindow *w=new MainWindow(protocol,ui->Nickname->text());
+        MainWindow *w=new MainWindow(protocol,ServerIP,ui->Port->text().toInt(),ui->Nickname->text());
         w->show();
         this->hide();
     } else if (Data=="l2") {
