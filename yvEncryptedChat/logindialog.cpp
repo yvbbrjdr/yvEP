@@ -36,10 +36,7 @@ LoginDialog::LoginDialog(QWidget *parent):QDialog(parent),ui(new Ui::LoginDialog
     }
     connect(ui->LoginButton,SIGNAL(clicked(bool)),this,SLOT(LoginPressed()));
     protocol=new yvEP;
-    if (!protocol->LoadKey(QApplication::applicationDirPath()+"/yvEC.key")) {
-        protocol->GenerateKey();
-        protocol->SaveKey(QApplication::applicationDirPath()+"/yvEC.key");
-    }
+    protocol->GenerateKey();
     connect(protocol,SIGNAL(RecvData(QString,unsigned short,QByteArray)),this,SLOT(RecvData(QString,unsigned short,QByteArray)));
 }
 

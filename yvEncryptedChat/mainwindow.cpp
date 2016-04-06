@@ -50,10 +50,12 @@ MainWindow::~MainWindow() {
 
 void MainWindow::RecvData(const QString&,unsigned short,const QByteArray &Data) {
     if (Data.left(2)=="li") {
-        if (Data.size()==2)
-            return;
-        Clients.append(QString(Data.mid(3)).split('\n'));
-        UpdateClients();
+        QStringList Clients;
+        Clients.append("Broadcast");
+        if (Data.size()!=2)
+            Clients.append(QString(Data.mid(3)).split('\n'));
+        listmodel->setStringList(Clients);
+        ui->ClientList->setModel(listmodel);
     } else if (Data.left(2)=="t1") {
         QStringList qsl=QString(Data.mid(2)).split(":");
         RemoteIP=qsl.at(0);
@@ -97,11 +99,9 @@ void MainWindow::RecvData(const QString&,unsigned short,const QByteArray &Data) 
     } else if (Data.left(2)=="c1") {
         Cloaking=1;
         ui->CloakButton->setText("Decloak");
-        Refresh();
     } else if (Data.left(2)=="c3") {
         Cloaking=0;
         ui->CloakButton->setText("Cloak");
-        Refresh();
     } else if (Data.left(2)=="l3") {
         QApplication::quit();
     }
@@ -119,19 +119,16 @@ void MainWindow::SendMessage() {
     ui->Message->setText("");
     bool success;
     if (RemoteNickname=="Broadcast")
-        success=protocol->SendData(ServerIP,ServerPort,('b'+Message).toUtf8());
+        success=protocol->SendAndConfirm(ServerIP,ServerPort,('b'+Message).toUtf8());
     else if (ServerIP=="127.0.0.1")
-        success=protocol->SendData("127.0.0.1",ServerPort,('f'+RemoteNickname+'\n'+Message).toUtf8());
+        success=protocol->SendAndConfirm("127.0.0.1",ServerPort,('f'+RemoteNickname+'\n'+Message).toUtf8());
     else
-        success=protocol->SendData(RemoteIP,RemotePort,('m'+Message).toUtf8());
+        success=protocol->SendAndConfirm(RemoteIP,RemotePort,('m'+Message).toUtf8());
     if (!success)
-        QMessageBox::critical(this,"Error","Failed to deliver this message\nPossible reasons:\nThe message is too long\nThe user has logged off");
+        QMessageBox::critical(this,"Error","Failed to deliver this message\nPossible reasons:\nThe Internet is bad\nThe user has logged off");
 }
 
 void MainWindow::Refresh() {
-    Clients.clear();
-    Clients.push_back("Broadcast");
-    UpdateClients();
     protocol->SendData(ServerIP,ServerPort,"li");
 }
 
@@ -156,11 +153,6 @@ void MainWindow::CursorDown() {
     QTextCursor qtc(ui->History->textCursor());
     qtc.movePosition(QTextCursor::End);
     ui->History->setTextCursor(qtc);
-}
-
-void MainWindow::UpdateClients() {
-    listmodel->setStringList(Clients);
-    ui->ClientList->setModel(listmodel);
 }
 
 void MainWindow::Cloak() {

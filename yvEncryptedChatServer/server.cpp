@@ -22,10 +22,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 Server::Server(unsigned short Port) {
     protocol=new yvEP(Port);
-    if (!protocol->LoadKey(QCoreApplication::applicationDirPath()+"/yvECS.key")) {
-        protocol->GenerateKey();
-        protocol->SaveKey(QCoreApplication::applicationDirPath()+"/yvECS.key");
-    }
+    protocol->AutoKey(QCoreApplication::applicationDirPath()+"/yvECS.key");
     connect(protocol,SIGNAL(RecvData(QString,unsigned short,QByteArray)),this,SLOT(RecvData(QString,unsigned short,QByteArray)));
 }
 
@@ -38,6 +35,8 @@ void Server::RecvData(const QString &IP,unsigned short Port,const QByteArray &Da
         if (Clients.find(Data.mid(2))==Clients.end()&&Data.mid(2)!="Broadcast") {
             Clients.insert(Data.mid(2),UserData(IP,Port));
             protocol->SendData(IP,Port,"l1");
+            for (QMap<QString,UserData>::iterator it=Clients.begin();it!=Clients.end();++it)
+                protocol->SendAndConfirm(it.value().IP,it.value().Port,"t3");
             Log(QString("%1:%2 logged in as nickname %3").arg(IP).arg(Port).arg(QString(Data.mid(2))));
         } else {
             protocol->SendData(IP,Port,"l2");
@@ -45,18 +44,12 @@ void Server::RecvData(const QString &IP,unsigned short Port,const QByteArray &Da
         }
     } else if (Data.left(2)=="li") {
         QString s("li\n");
-        int count=0;
         for (QMap<QString,UserData>::iterator it=Clients.begin();it!=Clients.end();++it) {
             if (it.value().Cloak)
                 continue;
             s+=it.key()+'\n';
-            ++count;
-            if (count%20==0) {
-                protocol->SendData(IP,Port,s.left(s.length()-1).toUtf8());
-                s="li\n";
-            }
         }
-        protocol->SendData(IP,Port,s.left(s.length()-1).toUtf8());
+        protocol->SendAndConfirm(IP,Port,s.left(s.length()-1).toUtf8());
         Log(QString("%1:%2 requested the client list").arg(IP).arg(Port));
     } else if (Data.left(2)=="l3") {
         QString n(Data.mid(2));
@@ -64,6 +57,8 @@ void Server::RecvData(const QString &IP,unsigned short Port,const QByteArray &Da
         if (it!=Clients.end()&&it.value().IP==IP&&it.value().Port==Port) {
             Clients.erase(it);
             Log(QString("%1(%2:%3) logged off").arg(QString(Data.mid(2))).arg(IP).arg(Port));
+            for (QMap<QString,UserData>::iterator it=Clients.begin();it!=Clients.end();++it)
+                protocol->SendAndConfirm(it.value().IP,it.value().Port,"t3");
         } else {
             Log(QString("%1:%2 faked the log off of %3 but failed").arg(IP).arg(Port).arg(QString(Data.mid(2))));
         }
@@ -80,7 +75,7 @@ void Server::RecvData(const QString &IP,unsigned short Port,const QByteArray &Da
     } else if (Data[0]=='m') {
         for (QMap<QString,UserData>::iterator it=Clients.begin();it!=Clients.end();++it)
             if (it.value().IP=="127.0.0.1")
-                protocol->SendData("127.0.0.1",it.value().Port,Data);
+                protocol->SendAndConfirm("127.0.0.1",it.value().Port,Data);
         QStringList qsl(QString(Data.mid(1)).split('\n'));
         Log(QString("%1(%2:%3) said to server: %4").arg(qsl.at(0)).arg(IP).arg(Port).arg(qsl.at(1)));
     } else if (Data[0]=='f') {
@@ -88,7 +83,7 @@ void Server::RecvData(const QString &IP,unsigned short Port,const QByteArray &Da
         QMap<QString,UserData>::iterator it=Clients.find(n);
         QStringList qsl(QString(Data.mid(1)).split('\n'));
         if (it!=Clients.end()) {
-            protocol->SendData(it.value().IP,it.value().Port,'m'+Data.mid(Data.indexOf('\n')+1));
+            protocol->SendAndConfirm(it.value().IP,it.value().Port,'m'+Data.mid(Data.indexOf('\n')+1));
             Log(QString("%1(%2:%3) said to %4(%5:%6): %7").arg(qsl.at(1)).arg(IP).arg(Port).arg(qsl.at(0)).arg(it.value().IP).arg(it.value().Port).arg(qsl.at(2)));
         } else {
             Log(QString("%1(%2:%3) failed to say to %4: %5").arg(qsl.at(1)).arg(IP).arg(Port).arg(qsl.at(0)).arg(qsl.at(2)));
@@ -96,7 +91,7 @@ void Server::RecvData(const QString &IP,unsigned short Port,const QByteArray &Da
     } else if (Data[0]=='b') {
         for (QMap<QString,UserData>::iterator it=Clients.begin();it!=Clients.end();++it)
             if (it.value().IP!=IP||it.value().Port!=Port)
-                protocol->SendData(it.value().IP,it.value().Port,Data);
+                protocol->SendAndConfirm(it.value().IP,it.value().Port,Data);
         QStringList qsl(QString(Data.mid(1)).split('\n'));
         Log(QString("%1(%2:%3) broadcast: %4").arg(qsl.at(0)).arg(IP).arg(Port).arg(qsl.at(1)));
     } else if (Data.left(2)=="c0") {
@@ -106,6 +101,8 @@ void Server::RecvData(const QString &IP,unsigned short Port,const QByteArray &Da
             it.value().Cloak=true;
             protocol->SendData(IP,Port,"c1");
             Log(QString("%1(%2:%3) cloaked").arg(QString(Data.mid(2))).arg(IP).arg(Port));
+            for (QMap<QString,UserData>::iterator it=Clients.begin();it!=Clients.end();++it)
+                protocol->SendAndConfirm(it.value().IP,it.value().Port,"t3");
         } else {
             Log(QString("%1:%2 faked the cloak of %3 but failed").arg(IP).arg(Port).arg(QString(Data.mid(2))));
         }
@@ -116,6 +113,8 @@ void Server::RecvData(const QString &IP,unsigned short Port,const QByteArray &Da
             it.value().Cloak=false;
             protocol->SendData(IP,Port,"c3");
             Log(QString("%1(%2:%3) decloaked").arg(QString(Data.mid(2))).arg(IP).arg(Port));
+            for (QMap<QString,UserData>::iterator it=Clients.begin();it!=Clients.end();++it)
+                protocol->SendAndConfirm(it.value().IP,it.value().Port,"t3");
         } else {
             Log(QString("%1:%2 faked the decloak of %3 but failed").arg(IP).arg(Port).arg(QString(Data.mid(2))));
         }

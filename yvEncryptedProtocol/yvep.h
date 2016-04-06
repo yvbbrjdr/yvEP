@@ -32,6 +32,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #include <QMap>
 #include <QFile>
 #include <QDataStream>
+#include <QSet>
 #include "udpsocket.h"
 
 class YVENCRYPTEDPROTOCOLSHARED_EXPORT yvEP : public QObject {
@@ -43,13 +44,16 @@ public:
     void GenerateKey();
     bool LoadKey(const QString &Filename);
     bool SaveKey(const QString &Filename);
+    void AutoKey(const QString &Filename);
     bool SendData(const QString &IP,unsigned short Port,const QByteArray &Data);
+    bool SendAndConfirm(const QString &IP,unsigned short Port,const QByteArray &Data);
 private:
     UdpSocket *socket;
     QThread *thread;
     QByteArray LocalPublicKey,LocalPrivateKey;
     bool KeyPrepared,Connecting;
-    QMap<QPair<QString,unsigned short>,QByteArray>PublicKeys;
+    QMap<QPair<QString,unsigned short>,QByteArray>PublicKeys,Buffer;
+    QSet<QByteArray>Accepted;
 signals:
     void RecvData(const QString &IP,unsigned short Port,const QByteArray &Data);
 private slots:

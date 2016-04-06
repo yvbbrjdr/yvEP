@@ -52,13 +52,11 @@ private:
     QString RemoteIP;
     unsigned short RemotePort;
     QString RemoteNickname;
-    QStringList Clients;
     QStringListModel *listmodel;
     QTimer *refreshtimer;
     QMap<QString,QString>History;
     void CursorDown();
     QLabel *DownLabel;
-    void UpdateClients();
     bool Cloaking;
     QMediaPlayer *Notification;
 private slots:

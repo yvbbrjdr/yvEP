@@ -63,6 +63,13 @@ bool yvEP::SaveKey(const QString &Filename) {
     return true;
 }
 
+void yvEP::AutoKey(const QString &Filename) {
+    if (!LoadKey(Filename)) {
+        GenerateKey();
+        SaveKey(Filename);
+    }
+}
+
 bool yvEP::SendData(const QString &IP,unsigned short Port,const QByteArray &Data) {
     if (!KeyPrepared)
         return false;
@@ -90,7 +97,75 @@ bool yvEP::SendData(const QString &IP,unsigned short Port,const QByteArray &Data
     return true;
 }
 
+bool yvEP::SendAndConfirm(const QString &IP,unsigned short Port,const QByteArray &Data) {
+    if (!KeyPrepared)
+        return false;
+    QMap<QPair<QString,unsigned short>,QByteArray>::iterator it=PublicKeys.find(QPair<QString,unsigned short>(IP,Port));
+    if (it==PublicKeys.end()) {
+        if (Connecting)
+            return false;
+        emit socket->SendData(IP,Port,'0'+LocalPublicKey);
+        QTime t=QTime::currentTime();
+        t.start();
+        Connecting=true;
+        while (t.elapsed()<1000&&(it=PublicKeys.find(QPair<QString,unsigned short>(IP,Port)))==PublicKeys.end())
+            QCoreApplication::processEvents();
+        Connecting=false;
+        if (it==PublicKeys.end())
+            return false;
+    }
+    QByteArray qba(Data);
+    while (crypto_box_MACBYTES+qba.length()+crypto_box_NONCEBYTES>570) {
+        QByteArray nonce(crypto_box_NONCEBYTES,0),tmp(crypto_box_MACBYTES+500,0);
+        randombytes_buf(nonce.data(),nonce.length());
+        if (crypto_box_easy((unsigned char*)tmp.data(),(unsigned char*)qba.data(),500,(unsigned char*)nonce.data(),(unsigned char*)it.value().data(),(unsigned char*)LocalPrivateKey.data())) {
+            socket->SendData(IP,Port,"6");
+            socket->SendData(IP,Port,"6");
+            socket->SendData(IP,Port,"6");
+            return false;
+        }
+        emit socket->SendData(IP,Port,'3'+tmp+nonce);
+        QSet<QByteArray>::iterator it2;
+        QTime t=QTime::currentTime();
+        t.start();
+        while (t.elapsed()<1000&&(it2=Accepted.find(nonce))==Accepted.end())
+            QCoreApplication::processEvents();
+        if (it2==Accepted.end()) {
+            socket->SendData(IP,Port,"6");
+            socket->SendData(IP,Port,"6");
+            socket->SendData(IP,Port,"6");
+            return false;
+        }
+        Accepted.erase(it2);
+        qba=qba.mid(500);
+    }
+    QByteArray nonce(crypto_box_NONCEBYTES,0),tmp(crypto_box_MACBYTES+qba.length(),0);
+    randombytes_buf(nonce.data(),nonce.length());
+    if (crypto_box_easy((unsigned char*)tmp.data(),(unsigned char*)qba.data(),qba.length(),(unsigned char*)nonce.data(),(unsigned char*)it.value().data(),(unsigned char*)LocalPrivateKey.data())) {
+        socket->SendData(IP,Port,"6");
+        socket->SendData(IP,Port,"6");
+        socket->SendData(IP,Port,"6");
+        return false;
+    }
+    emit socket->SendData(IP,Port,'4'+tmp+nonce);
+    QSet<QByteArray>::iterator it2;
+    QTime t=QTime::currentTime();
+    t.start();
+    while (t.elapsed()<1000&&(it2=Accepted.find(nonce))==Accepted.end())
+        QCoreApplication::processEvents();
+    if (it2==Accepted.end()) {
+        socket->SendData(IP,Port,"6");
+        socket->SendData(IP,Port,"6");
+        socket->SendData(IP,Port,"6");
+        return false;
+    }
+    Accepted.erase(it2);
+    return true;
+}
+
 void yvEP::ProcessData(const QString &IP,unsigned short Port,const QByteArray &Data) {
+    if (!KeyPrepared)
+        return;
     char op=Data[0];
     QByteArray qba=Data.mid(1);
     if (op=='0') {
@@ -101,10 +176,46 @@ void yvEP::ProcessData(const QString &IP,unsigned short Port,const QByteArray &D
     } else if (op=='2') {
         QByteArray t(qba.length()-crypto_box_MACBYTES-crypto_box_NONCEBYTES,0);
         QMap<QPair<QString,unsigned short>,QByteArray>::iterator it=PublicKeys.find(QPair<QString,unsigned short>(IP,Port));
-        if (it==PublicKeys.end())
+        if (it==PublicKeys.end()) {
+            emit socket->SendData(IP,Port,'0'+LocalPublicKey);
             return;
-        if (crypto_box_open_easy((unsigned char*)t.data(),(unsigned char*)qba.data(),qba.length()-crypto_box_NONCEBYTES,(unsigned char*)qba.data()+qba.length()-crypto_box_NONCEBYTES,(unsigned char*)it.value().data(),(unsigned char*)LocalPrivateKey.data()))
+        }
+        if (crypto_box_open_easy((unsigned char*)t.data(),(unsigned char*)qba.data(),qba.length()-crypto_box_NONCEBYTES,(unsigned char*)qba.data()+qba.length()-crypto_box_NONCEBYTES,(unsigned char*)it.value().data(),(unsigned char*)LocalPrivateKey.data())) {
+            emit socket->SendData(IP,Port,'0'+LocalPublicKey);
             return;
+        }
         emit RecvData(IP,Port,t);
+    } else if (op=='3') {
+        QByteArray t(qba.length()-crypto_box_MACBYTES-crypto_box_NONCEBYTES,0);
+        QMap<QPair<QString,unsigned short>,QByteArray>::iterator it=PublicKeys.find(QPair<QString,unsigned short>(IP,Port));
+        if (it==PublicKeys.end()) {
+            emit socket->SendData(IP,Port,'0'+LocalPublicKey);
+            return;
+        }
+        if (crypto_box_open_easy((unsigned char*)t.data(),(unsigned char*)qba.data(),qba.length()-crypto_box_NONCEBYTES,(unsigned char*)qba.data()+qba.length()-crypto_box_NONCEBYTES,(unsigned char*)it.value().data(),(unsigned char*)LocalPrivateKey.data())) {
+            emit socket->SendData(IP,Port,'0'+LocalPublicKey);
+            return;
+        }
+        Buffer[QPair<QString,unsigned short>(IP,Port)].append(t);
+        emit socket->SendData(IP,Port,'5'+qba.right(crypto_box_NONCEBYTES));
+    } else if (op=='4') {
+        QByteArray t(qba.length()-crypto_box_MACBYTES-crypto_box_NONCEBYTES,0);
+        QMap<QPair<QString,unsigned short>,QByteArray>::iterator it=PublicKeys.find(QPair<QString,unsigned short>(IP,Port));
+        if (it==PublicKeys.end()) {
+            emit socket->SendData(IP,Port,'0'+LocalPublicKey);
+            return;
+        }
+        if (crypto_box_open_easy((unsigned char*)t.data(),(unsigned char*)qba.data(),qba.length()-crypto_box_NONCEBYTES,(unsigned char*)qba.data()+qba.length()-crypto_box_NONCEBYTES,(unsigned char*)it.value().data(),(unsigned char*)LocalPrivateKey.data())) {
+            emit socket->SendData(IP,Port,'0'+LocalPublicKey);
+            return;
+        }
+        Buffer[QPair<QString,unsigned short>(IP,Port)].append(t);
+        emit socket->SendData(IP,Port,'5'+qba.right(crypto_box_NONCEBYTES));
+        emit RecvData(IP,Port,Buffer[QPair<QString,unsigned short>(IP,Port)]);
+        Buffer[QPair<QString,unsigned short>(IP,Port)]="";
+    } else if (op=='5') {
+        Accepted.insert(qba);
+    } else if (op=='6') {
+        Buffer[QPair<QString,unsigned short>(IP,Port)]="";
     }
 }
