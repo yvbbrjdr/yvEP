@@ -40,7 +40,6 @@ MainWindow::MainWindow(yvEP *protocol,const QString &ServerIP,unsigned short Ser
     connect(ui->CloakButton,SIGNAL(clicked(bool)),this,SLOT(Cloak()));
     connect(refreshtimer,SIGNAL(timeout()),this,SLOT(Refresh()));
     connect(ui->ClientList,SIGNAL(clicked(QModelIndex)),this,SLOT(Touch(QModelIndex)));
-    Refresh();
     refreshtimer->start(30000);
 }
 
@@ -99,7 +98,7 @@ void MainWindow::RecvData(const QString&,unsigned short,const QByteArray &Data) 
     } else if (Data.left(2)=="c1") {
         Cloaking=1;
         ui->CloakButton->setText("Decloak");
-    } else if (Data.left(2)=="c3") {
+    } else if (Data.left(2)=="c2") {
         Cloaking=0;
         ui->CloakButton->setText("Cloak");
     } else if (Data.left(2)=="l3") {
@@ -119,13 +118,13 @@ void MainWindow::SendMessage() {
     ui->Message->setText("");
     bool success;
     if (RemoteNickname=="Broadcast")
-        success=protocol->SendAndConfirm(ServerIP,ServerPort,('b'+Message).toUtf8());
+        success=protocol->SendData(ServerIP,ServerPort,('b'+Message).toUtf8());
     else if (ServerIP=="127.0.0.1")
         success=protocol->SendAndConfirm("127.0.0.1",ServerPort,('f'+RemoteNickname+'\n'+Message).toUtf8());
     else
         success=protocol->SendAndConfirm(RemoteIP,RemotePort,('m'+Message).toUtf8());
     if (!success)
-        QMessageBox::critical(this,"Error","Failed to deliver this message\nPossible reasons:\nThe Internet is bad\nThe user has logged off");
+        QMessageBox::critical(this,"Error","Failed to deliver this message\nPossible reasons:\nThe message is too long\nThe Internet is bad\nThe user has logged off");
 }
 
 void MainWindow::Refresh() {
@@ -156,8 +155,5 @@ void MainWindow::CursorDown() {
 }
 
 void MainWindow::Cloak() {
-    QByteArray qba=("c0"+Nickname).toUtf8();
-    if (Cloaking)
-        qba[1]='2';
-    protocol->SendData(ServerIP,ServerPort,qba);
+    protocol->SendData(ServerIP,ServerPort,("c0"+Nickname).toUtf8());
 }
