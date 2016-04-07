@@ -1,4 +1,4 @@
-# yvEP (Based on Qt and OpenSSL)
+# yvEP (Based on Qt and libsodium)
 
 ## yvEncryptedProtocol
 
