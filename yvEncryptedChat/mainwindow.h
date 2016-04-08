@@ -66,6 +66,7 @@ private slots:
     void Cloak();
     void Touch(const QModelIndex &index);
     void ForwardCheck();
+    void ClearHistory();
 protected:
     void closeEvent(QCloseEvent*);
 };

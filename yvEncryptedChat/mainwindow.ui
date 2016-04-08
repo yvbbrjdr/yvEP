@@ -74,7 +74,7 @@
       <x>590</x>
       <y>40</y>
       <width>161</width>
-      <height>441</height>
+      <height>411</height>
      </rect>
     </property>
     <property name="editTriggers">
@@ -105,6 +105,19 @@
     </property>
     <property name="text">
      <string>Server Forwarding</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="ClearHistory">
+    <property name="geometry">
+     <rect>
+      <x>590</x>
+      <y>460</y>
+      <width>161</width>
+      <height>25</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Clear History</string>
     </property>
    </widget>
   </widget>
