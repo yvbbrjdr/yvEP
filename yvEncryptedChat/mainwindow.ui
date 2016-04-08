@@ -61,6 +61,12 @@
       <height>25</height>
      </rect>
     </property>
+    <property name="maxLength">
+     <number>100000000</number>
+    </property>
+    <property name="placeholderText">
+     <string>Message (Tap enter to send)</string>
+    </property>
    </widget>
    <widget class="QListView" name="ClientList">
     <property name="geometry">
@@ -68,7 +74,7 @@
       <x>590</x>
       <y>40</y>
       <width>161</width>
-      <height>471</height>
+      <height>441</height>
      </rect>
     </property>
     <property name="editTriggers">
@@ -86,6 +92,19 @@
     </property>
     <property name="text">
      <string>Cloak</string>
+    </property>
+   </widget>
+   <widget class="QCheckBox" name="ServerForward">
+    <property name="geometry">
+     <rect>
+      <x>590</x>
+      <y>490</y>
+      <width>161</width>
+      <height>23</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Server Forwarding</string>
     </property>
    </widget>
   </widget>

@@ -72,10 +72,6 @@ void Server::RecvData(const QString &IP,unsigned short Port,const QByteArray &Da
             protocol->SendData(ipp.IP,ipp.Port,("t2"+IP+':'+QString::number(Port)).toUtf8());
             Log(QString("%1:%2 requested the address of %3(%4:%5)").arg(IP).arg(Port).arg(QString(Data.mid(2))).arg(ipp.IP).arg(ipp.Port));
         }
-    } else if (Data[0]=='m') {
-        for (QMap<QString,UserData>::iterator it=Clients.begin();it!=Clients.end();++it)
-            if (it.value().IP=="127.0.0.1")
-                protocol->SendAndConfirm("127.0.0.1",it.value().Port,Data);
     } else if (Data[0]=='f') {
         QString n(Data.mid(1,Data.indexOf('\n')-1));
         QMap<QString,UserData>::iterator it=Clients.find(n);

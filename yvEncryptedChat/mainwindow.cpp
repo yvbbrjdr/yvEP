@@ -1,4 +1,4 @@
-/*
+﻿/*
 This file is part of yvEncryptedChat
 yvEncryptedChat is an IM program that provides secure chats. 
 Copyright (C) 2016  yvbbrjdr
@@ -40,6 +40,7 @@ MainWindow::MainWindow(yvEP *protocol,const QString &ServerIP,unsigned short Ser
     connect(ui->CloakButton,SIGNAL(clicked(bool)),this,SLOT(Cloak()));
     connect(refreshtimer,SIGNAL(timeout()),this,SLOT(Refresh()));
     connect(ui->ClientList,SIGNAL(clicked(QModelIndex)),this,SLOT(Touch(QModelIndex)));
+    connect(ui->ServerForward,SIGNAL(stateChanged(int)),this,SLOT(ForwardCheck()));
     refreshtimer->start(30000);
 }
 
@@ -64,10 +65,6 @@ void MainWindow::RecvData(const QString&,unsigned short,const QByteArray &Data) 
         ui->Message->setFocus();
         if (DownLabel->text().left(DownLabel->text().length()-20)==RemoteNickname)
             DownLabel->setText("");
-        if (RemoteIP=="127.0.0.1") {
-            RemoteIP=ServerIP;
-            RemotePort=ServerPort;
-        }
     } else if (Data.left(2)=="t2") {
         QStringList qsl=QString(Data.mid(2)).split(":");
         protocol->SendData(qsl.at(0),qsl.at(1).toInt(),"hello");
@@ -119,12 +116,12 @@ void MainWindow::SendMessage() {
     bool success;
     if (RemoteNickname=="Broadcast")
         success=protocol->SendData(ServerIP,ServerPort,('b'+Message).toUtf8());
-    else if (ServerIP=="127.0.0.1")
-        success=protocol->SendAndConfirm("127.0.0.1",ServerPort,('f'+RemoteNickname+'\n'+Message).toUtf8());
+    else if (ui->ServerForward->isChecked())
+        success=protocol->SendAndConfirm(ServerIP,ServerPort,('f'+RemoteNickname+'\n'+Message).toUtf8());
     else
         success=protocol->SendAndConfirm(RemoteIP,RemotePort,('m'+Message).toUtf8());
     if (!success)
-        QMessageBox::critical(this,"Error","Failed to deliver this message\nPossible reasons:\nThe message is too long\nThe Internet is bad\nThe user has logged off");
+        QMessageBox::critical(this,"Error","Failed to deliver this message\nPossible reasons:\n- UDP punching is disabled\n- The Internet is bad\n- The user has logged off\n- The message is too long\nYou can try Server Forwarding");
 }
 
 void MainWindow::Refresh() {
@@ -156,4 +153,9 @@ void MainWindow::CursorDown() {
 
 void MainWindow::Cloak() {
     protocol->SendData(ServerIP,ServerPort,("c0"+Nickname).toUtf8());
+}
+
+void MainWindow::ForwardCheck() {
+    if (ui->ServerForward->isChecked()&&QMessageBox::warning(this,"WARNING","Server Forwarding is a dangerous operation that the server could see your messages.\nAre you sure to continue?",QMessageBox::Yes,QMessageBox::No)==QMessageBox::No)
+        ui->ServerForward->setCheckState(Qt::Unchecked);
 }
