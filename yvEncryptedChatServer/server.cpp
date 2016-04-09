@@ -76,7 +76,11 @@ void Server::RecvData(const QString &IP,unsigned short Port,const QByteArray &Da
         QString n(Data.mid(1,Data.indexOf('\n')-1));
         QMap<QString,UserData>::iterator it=Clients.find(n);
         if (it!=Clients.end()) {
-            protocol->SendAndConfirm(it.value().IP,it.value().Port,'m'+Data.mid(Data.indexOf('\n')+1));
+            if (!protocol->SendAndConfirm(it.value().IP,it.value().Port,'m'+Data.mid(Data.indexOf('\n')+1))) {
+                protocol->SendData(IP,Port,"f1");
+            }
+        } else {
+            protocol->SendData(IP,Port,"f0");
         }
     } else if (Data[0]=='b') {
         for (QMap<QString,UserData>::iterator it=Clients.begin();it!=Clients.end();++it)

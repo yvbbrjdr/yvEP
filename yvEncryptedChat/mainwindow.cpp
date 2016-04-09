@@ -101,6 +101,10 @@ void MainWindow::RecvData(const QString&,unsigned short,const QByteArray &Data) 
         ui->CloakButton->setText("Cloak");
     } else if (Data.left(2)=="l3") {
         QApplication::quit();
+    } else if (Data.left(2)=="f0") {
+        QMessageBox::critical(this,"Error","Failed to deliver this message\n- The user has logged off");
+    } else if (Data.left(2)=="f1") {
+        QMessageBox::critical(this,"Error","Failed to deliver this message\nPossible reasons:\n- The package is missing\n- The user has logged off\nTry again");
     }
 }
 
@@ -114,15 +118,17 @@ void MainWindow::SendMessage() {
     ui->History->setHtml(History[RemoteNickname]);
     CursorDown();
     ui->Message->setText("");
-    bool success;
-    if (RemoteNickname=="Broadcast")
-        success=protocol->SendData(ServerIP,ServerPort,('b'+Message).toUtf8());
-    else if (ui->ServerForward->isChecked())
-        success=protocol->SendAndConfirm(ServerIP,ServerPort,('f'+RemoteNickname+'\n'+Message).toUtf8());
-    else
-        success=protocol->SendAndConfirm(RemoteIP,RemotePort,('m'+Message).toUtf8());
-    if (!success)
-        QMessageBox::critical(this,"Error","Failed to deliver this message\nPossible reasons:\n- UDP punching is disabled\n- The Internet is bad\n- The user has logged off\n- The message is too long\nYou can try Server Forwarding");
+    if (RemoteNickname=="Broadcast") {
+        protocol->SendData(ServerIP,ServerPort,('b'+Message).toUtf8());
+    } else if (ui->ServerForward->isChecked()) {
+        if (!protocol->SendAndConfirm(ServerIP,ServerPort,('f'+RemoteNickname+'\n'+Message).toUtf8())) {
+            QMessageBox::critical(this,"Error","Failed to deliver this message\nPossible reasons:\n- The package is missing\n- The server is shut down\nTry again");
+        }
+    } else {
+        if (!protocol->SendAndConfirm(RemoteIP,RemotePort,('m'+Message).toUtf8())) {
+            QMessageBox::critical(this,"Error","Failed to deliver this message\nPossible reasons:\n- UDP punching is disabled\n- The package is missing\n- The user has logged off\nTry again or use Server Forwarding");
+        }
+    }
 }
 
 void MainWindow::Refresh() {

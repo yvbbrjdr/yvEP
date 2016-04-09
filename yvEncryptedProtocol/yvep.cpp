@@ -85,6 +85,7 @@ bool yvEP::SendData(const QString &IP,unsigned short Port,const QByteArray &Data
         Connecting=true;
         while (t.elapsed()<1000&&(it=PublicKeys.find(QPair<QString,unsigned short>(IP,Port)))==PublicKeys.end())
             QCoreApplication::processEvents();
+        it=PublicKeys.find(QPair<QString,unsigned short>(IP,Port));
         Connecting=false;
         if (it==PublicKeys.end())
             return false;
@@ -110,6 +111,7 @@ bool yvEP::SendAndConfirm(const QString &IP,unsigned short Port,const QByteArray
         Connecting=true;
         while (t.elapsed()<1000&&(it=PublicKeys.find(QPair<QString,unsigned short>(IP,Port)))==PublicKeys.end())
             QCoreApplication::processEvents();
+        it=PublicKeys.find(QPair<QString,unsigned short>(IP,Port));
         Connecting=false;
         if (it==PublicKeys.end())
             return false;
@@ -130,6 +132,7 @@ bool yvEP::SendAndConfirm(const QString &IP,unsigned short Port,const QByteArray
         t.start();
         while (t.elapsed()<1000&&(it2=Accepted.find(nonce))==Accepted.end())
             QCoreApplication::processEvents();
+        it2=Accepted.find(nonce);
         if (it2==Accepted.end()) {
             socket->SendData(IP,Port,"6");
             socket->SendData(IP,Port,"6");
@@ -153,6 +156,7 @@ bool yvEP::SendAndConfirm(const QString &IP,unsigned short Port,const QByteArray
     t.start();
     while (t.elapsed()<1000&&(it2=Accepted.find(nonce))==Accepted.end())
         QCoreApplication::processEvents();
+    it2=Accepted.find(nonce);
     if (it2==Accepted.end()) {
         socket->SendData(IP,Port,"6");
         socket->SendData(IP,Port,"6");
