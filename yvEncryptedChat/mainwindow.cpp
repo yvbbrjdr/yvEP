@@ -111,9 +111,10 @@ void MainWindow::RecvData(const QString&,unsigned short,const QByteArray &Data) 
 void MainWindow::SendMessage() {
     if (ui->Message->text()=="")
         return;
-    QString Message(Nickname+'\n'+ui->Message->text());
+    QString Message(ui->Prefix->text()+ui->Message->text()+ui->Suffix->text());
+    Message=Nickname+'\n'+Message;
     if (RemoteNickname=="Broadcast"&&Cloaking)
-        Message="Cloaked\n"+ui->Message->text();
+        Message="Cloaked\n"+Message;
     History[RemoteNickname]+="<p style=\"text-align:right\"><font color=\"blue\">"+QTime::currentTime().toString("hh:mm:ss")+' '+QString(Message).replace('\n',"<br>")+"</font></p>";
     ui->History->setHtml(History[RemoteNickname]);
     CursorDown();

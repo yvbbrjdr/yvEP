@@ -10,116 +10,102 @@
     <height>544</height>
    </rect>
   </property>
-  <property name="minimumSize">
-   <size>
-    <width>755</width>
-    <height>544</height>
-   </size>
-  </property>
-  <property name="maximumSize">
-   <size>
-    <width>755</width>
-    <height>544</height>
-   </size>
-  </property>
   <property name="windowTitle">
    <string>yvEncryptedChat</string>
   </property>
   <widget class="QWidget" name="centralWidget">
-   <widget class="QPushButton" name="RefreshButton">
-    <property name="geometry">
-     <rect>
-      <x>590</x>
-      <y>10</y>
-      <width>81</width>
-      <height>25</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Refresh</string>
-    </property>
-   </widget>
-   <widget class="QTextBrowser" name="History">
-    <property name="geometry">
-     <rect>
-      <x>10</x>
-      <y>10</y>
-      <width>571</width>
-      <height>471</height>
-     </rect>
-    </property>
-   </widget>
-   <widget class="QLineEdit" name="Message">
-    <property name="enabled">
-     <bool>false</bool>
-    </property>
-    <property name="geometry">
-     <rect>
-      <x>10</x>
-      <y>490</y>
-      <width>571</width>
-      <height>25</height>
-     </rect>
-    </property>
-    <property name="maxLength">
-     <number>100000000</number>
-    </property>
-    <property name="placeholderText">
-     <string>Message (Tap enter to send)</string>
-    </property>
-   </widget>
-   <widget class="QListView" name="ClientList">
-    <property name="geometry">
-     <rect>
-      <x>590</x>
-      <y>40</y>
-      <width>161</width>
-      <height>411</height>
-     </rect>
-    </property>
-    <property name="editTriggers">
-     <set>QAbstractItemView::NoEditTriggers</set>
-    </property>
-   </widget>
-   <widget class="QPushButton" name="CloakButton">
-    <property name="geometry">
-     <rect>
-      <x>670</x>
-      <y>10</y>
-      <width>81</width>
-      <height>25</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Cloak</string>
-    </property>
-   </widget>
-   <widget class="QCheckBox" name="ServerForward">
-    <property name="geometry">
-     <rect>
-      <x>590</x>
-      <y>490</y>
-      <width>161</width>
-      <height>23</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Server Forwarding</string>
-    </property>
-   </widget>
-   <widget class="QPushButton" name="ClearHistory">
-    <property name="geometry">
-     <rect>
-      <x>590</x>
-      <y>460</y>
-      <width>161</width>
-      <height>25</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Clear History</string>
-    </property>
-   </widget>
+   <property name="sizePolicy">
+    <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+     <horstretch>0</horstretch>
+     <verstretch>0</verstretch>
+    </sizepolicy>
+   </property>
+   <layout class="QHBoxLayout" name="horizontalLayout" stretch="100,1">
+    <item>
+     <layout class="QVBoxLayout" name="MessageLayout">
+      <item>
+       <widget class="QTextBrowser" name="History"/>
+      </item>
+      <item>
+       <layout class="QHBoxLayout" name="InputLayout" stretch="1,4,1">
+        <item>
+         <widget class="QLineEdit" name="Prefix">
+          <property name="placeholderText">
+           <string>Prefix</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLineEdit" name="Message">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
+          <property name="text">
+           <string/>
+          </property>
+          <property name="maxLength">
+           <number>100000000</number>
+          </property>
+          <property name="placeholderText">
+           <string>Message (Tap enter to send)</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLineEdit" name="Suffix">
+          <property name="placeholderText">
+           <string>Suffix</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+     </layout>
+    </item>
+    <item>
+     <layout class="QVBoxLayout" name="ControlLayout">
+      <item>
+       <layout class="QHBoxLayout" name="ControlLayout2">
+        <item>
+         <widget class="QPushButton" name="RefreshButton">
+          <property name="text">
+           <string>Refresh</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="CloakButton">
+          <property name="text">
+           <string>Cloak</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <widget class="QListView" name="ClientList">
+        <property name="editTriggers">
+         <set>QAbstractItemView::NoEditTriggers</set>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="ClearHistory">
+        <property name="text">
+         <string>Clear History</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QCheckBox" name="ServerForward">
+        <property name="text">
+         <string>Server Forwarding</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </item>
+   </layout>
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
  </widget>
