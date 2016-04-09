@@ -24,6 +24,11 @@ Server::Server(unsigned short Port) {
     protocol=new yvEP(Port);
     protocol->AutoKey(QCoreApplication::applicationDirPath()+"/yvECS.key");
     connect(protocol,SIGNAL(RecvData(QString,unsigned short,QByteArray)),this,SLOT(RecvData(QString,unsigned short,QByteArray)));
+    QFile info(QCoreApplication::applicationDirPath()+"/yvECS.info");
+    if (info.open(QIODevice::ReadOnly|QIODevice::Text)) {
+        QTextStream qts(&info);
+        Info=qts.readAll();
+    }
 }
 
 void Server::Log(const QString &Content) {
@@ -34,10 +39,11 @@ void Server::RecvData(const QString &IP,unsigned short Port,const QByteArray &Da
     if (Data.left(2)=="l0") {
         if (Clients.find(Data.mid(2))==Clients.end()&&Data.mid(2)!="Broadcast") {
             Log(QString("%1:%2 logged in as nickname %3").arg(IP).arg(Port).arg(QString(Data.mid(2))));
-            Clients.insert(Data.mid(2),UserData(IP,Port));
             protocol->SendData(IP,Port,"l1");
             for (QMap<QString,UserData>::iterator it=Clients.begin();it!=Clients.end();++it)
                 protocol->SendData(it.value().IP,it.value().Port,"t3");
+            Clients.insert(Data.mid(2),UserData(IP,Port));
+            protocol->SendAndConfirm(IP,Port,("i"+Info).toUtf8());
         } else {
             protocol->SendData(IP,Port,"l2");
             Log(QString("%1:%2 tried to log in as nickname %3 but failed").arg(IP).arg(Port).arg(QString(Data.mid(2))));

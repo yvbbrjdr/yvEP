@@ -22,6 +22,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #include "ui_mainwindow.h"
 
 MainWindow::MainWindow(yvEP *protocol,const QString &ServerIP,unsigned short ServerPort,const QString &Nickname,QWidget *parent):QMainWindow(parent),ui(new Ui::MainWindow),protocol(protocol),ServerIP(ServerIP),ServerPort(ServerPort),Nickname(Nickname),Cloaking(false) {
+    connect(protocol,SIGNAL(RecvData(QString,unsigned short,QByteArray)),this,SLOT(RecvData(QString,unsigned short,QByteArray)));
     ui->setupUi(this);
     listmodel=new QStringListModel(this);
     refreshtimer=new QTimer(this);
@@ -34,7 +35,6 @@ MainWindow::MainWindow(yvEP *protocol,const QString &ServerIP,unsigned short Ser
     Notification=new QMediaPlayer(this);
     Notification->setMedia(QUrl::fromLocalFile(QApplication::applicationDirPath()+"/notification.wav"));
     Notification->setVolume(100);
-    connect(protocol,SIGNAL(RecvData(QString,unsigned short,QByteArray)),this,SLOT(RecvData(QString,unsigned short,QByteArray)));
     connect(ui->Message,SIGNAL(returnPressed()),this,SLOT(SendMessage()));
     connect(ui->RefreshButton,SIGNAL(clicked(bool)),this,SLOT(Refresh()));
     connect(ui->CloakButton,SIGNAL(clicked(bool)),this,SLOT(Cloak()));
@@ -105,6 +105,9 @@ void MainWindow::RecvData(const QString&,unsigned short,const QByteArray &Data) 
         QMessageBox::critical(this,"Error","Failed to deliver this message\n- The user has logged off");
     } else if (Data.left(2)=="f1") {
         QMessageBox::critical(this,"Error","Failed to deliver this message\nPossible reasons:\n- The package is missing\n- The user has logged off\nTry again");
+    } else if (Data[0]=='i') {
+        ui->History->setHtml(Data.mid(1));
+        Refresh();
     }
 }
 

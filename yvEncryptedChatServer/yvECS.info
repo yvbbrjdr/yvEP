@@ -1,0 +1,39 @@
+<center>
+<h1><font color="red">Welcome to yvEncryptedChat</font></h1>
+<font color="grey">(This message can be edited in yvECS.info)</font>
+<span style="font-size:20px;">
+<p>
+Greetings from <font color="lime"><b><i>yvbbrjdr</i></b></font>, the creator of yvEC. 
+Hope you'd enjoy using this software. 
+<p>
+This software is aimed at providing safe IM service. 
+And by using libsodium the safety can be guaranteed. 
+<p>
+Click a user on the right to start a chat. 
+The Broadcast channel is a public channel where everyone will receive the message you send. 
+<p>
+Cloak can make you invisible to others, even when you are broadcasting. 
+<p>
+When yvEC failed to deliver the message, you can try Server Forwarding. 
+<font color="red">However, it is very dangerous because a modified server could capture and see your messages. </font>
+<p>
+You can change the message tone by replacing "notification.wav". 
+<p><font color="blue">
+Copyright (C) 2016  yvbbrjdr
+<br>
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2 of the License, or
+(at your option) any later version.
+<br>
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+<br>
+You should have received a copy of the GNU General Public License along
+with this program; if not, write to the Free Software Foundation, Inc.,
+51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+</font>
+</span>
+</center>

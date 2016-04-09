@@ -25,6 +25,8 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #include <yvep.h>
 #include <cstdio>
 #include <QDateTime>
+#include <QFile>
+#include <QTextStream>
 #include "userdata.h"
 
 class Server : public QObject {
@@ -35,6 +37,7 @@ public:
 private:
     QMap<QString,UserData>Clients;
     void Log(const QString &Content);
+    QString Info;
 private slots:
     void RecvData(const QString &IP,unsigned short Port,const QByteArray &Data);
     void RemoveClient(const QString &Nickname);
