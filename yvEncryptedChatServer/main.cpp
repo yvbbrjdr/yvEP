@@ -41,6 +41,6 @@ int main(int argc, char *argv[]) {
         exit(0);
     }
     thread.start();
-    printf("The server has bind to Port %d\nEnter nickname to logout\n",Port);
+    printf("The server is listening on port %d\nEnter nickname to logout\n",Port);
     return a.exec();
 }

@@ -102,7 +102,7 @@ void MainWindow::RecvData(const QString&,unsigned short,const QByteArray &Data) 
     } else if (Data.left(2)=="l3") {
         QApplication::quit();
     } else if (Data.left(2)=="f0") {
-        QMessageBox::critical(this,"Error","Failed to deliver this message\n- The user has logged off");
+        QMessageBox::critical(this,"Error","Failed to deliver this message\nThe user has logged off");
     } else if (Data.left(2)=="f1") {
         QMessageBox::critical(this,"Error","Failed to deliver this message\nPossible reasons:\n- The package is missing\n- The user has logged off\nTry again");
     } else if (Data[0]=='i') {
@@ -123,7 +123,9 @@ void MainWindow::SendMessage() {
     CursorDown();
     ui->Message->setText("");
     if (RemoteNickname=="Broadcast") {
-        protocol->SendData(ServerIP,ServerPort,('b'+Message).toUtf8());
+        if (!protocol->SendData(ServerIP,ServerPort,('b'+Message).toUtf8())) {
+            QMessageBox::critical(this,"Error","Failed to deliver this message\nThe message is too long");
+        }
     } else if (ui->ServerForward->isChecked()) {
         if (!protocol->SendAndConfirm(ServerIP,ServerPort,('f'+RemoteNickname+'\n'+Message).toUtf8())) {
             QMessageBox::critical(this,"Error","Failed to deliver this message\nPossible reasons:\n- The package is missing\n- The server is shut down\nTry again");
