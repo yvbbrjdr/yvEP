@@ -34,6 +34,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #include <QMediaPlayer>
 #include <QDir>
 #include <QTime>
+#include "pluginmanager.h"
 
 namespace Ui {
     class MainWindow;
@@ -60,6 +61,7 @@ private:
     QLabel *DownLabel;
     bool Cloaking;
     QMediaPlayer *Notification;
+    PluginManager *pm;
 private slots:
     void RecvData(const QString&,unsigned short,const QVariantMap &Data);
     void SendMessage();
@@ -69,6 +71,7 @@ private slots:
     void ForwardCheck();
     void ClearHistory();
     void Failed(const QString &IP,unsigned short Port);
+    void SendMsg(const QString &Nick,const QString &Content);
 protected:
     void closeEvent(QCloseEvent*);
 };

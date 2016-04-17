@@ -36,6 +36,8 @@ MainWindow::MainWindow(yvEP *protocol,const QString &ServerIP,unsigned short Ser
     Notification=new QMediaPlayer(this);
     Notification->setMedia(QUrl::fromLocalFile(QApplication::applicationDirPath()+"/notification.wav"));
     Notification->setVolume(100);
+    pm=new PluginManager(this);
+    connect(pm,SIGNAL(SendMsg(QString,QString)),this,SLOT(SendMsg(QString,QString)));
     connect(ui->Message,SIGNAL(returnPressed()),this,SLOT(SendMessage()));
     connect(ui->RefreshButton,SIGNAL(clicked(bool)),this,SLOT(Refresh()));
     connect(ui->CloakButton,SIGNAL(clicked(bool)),this,SLOT(Cloak()));
@@ -86,12 +88,14 @@ void MainWindow::RecvData(const QString&,unsigned short,const QVariantMap &Data)
             Notification->stop();
             Notification->play();
         }
+        emit pm->RecvMsg(Data["nickname"].toString(),Data["message"].toString());
     } else if (Data["type"]=="broadcast") {
         History["Broadcast"]+="<p style=\"text-align:left\"><font color=\"green\">"+QTime::currentTime().toString("hh:mm:ss")+' '+Data["nickname"].toString()+"<br>"+Data["message"].toString().replace('\n',"<br>")+"</font></p>";
         if (RemoteNickname=="Broadcast") {
             ui->History->setHtml(History["Broadcast"]);
             CursorDown();
         }
+        emit pm->RecvMsg("Broadcast",Data["message"].toString());
     } else if (Data["type"]=="cloak") {
         if (Data["status"]=="cloaked") {
             Cloaking=1;
@@ -197,4 +201,13 @@ void MainWindow::Failed(const QString &IP,unsigned short Port) {
     } else {
         QMessageBox::critical(this,"ERROR","Something wrong happens.\nThe message wasn't sent out.");
     }
+}
+
+void MainWindow::SendMsg(const QString &Nick,const QString &Content) {
+    QVariantMap qvm;
+    qvm["type"]="forward";
+    qvm["nickname"]=Nickname;
+    qvm["to"]=Nick;
+    qvm["message"]=Content;
+    protocol->SendData(ServerIP,ServerPort,qvm);
 }
