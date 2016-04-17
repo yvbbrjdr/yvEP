@@ -36,8 +36,8 @@ LoginDialog::LoginDialog(QWidget *parent):QDialog(parent),ui(new Ui::LoginDialog
     }
     connect(ui->LoginButton,SIGNAL(clicked(bool)),this,SLOT(LoginPressed()));
     protocol=new yvEP;
-    protocol->GenerateKey();
-    connect(protocol,SIGNAL(RecvData(QString,unsigned short,QByteArray)),this,SLOT(RecvData(QString,unsigned short,QByteArray)));
+    connect(protocol,SIGNAL(RecvData(QString,unsigned short,QVariantMap)),this,SLOT(RecvData(QString,unsigned short,QVariantMap)));
+    connect(protocol,SIGNAL(Reset(QString,unsigned short)),this,SLOT(Failed()));
 }
 
 LoginDialog::~LoginDialog() {
@@ -64,23 +64,29 @@ void LoginDialog::LoginPressed() {
     ServerIP=ui->Address->text();
     if (!ServerIP.at(0).isDigit())
         ServerIP=QHostInfo::fromName(ServerIP).addresses().first().toString();
-    if (protocol->SendData(ServerIP,ui->Port->text().toInt(),("l0"+ui->Nickname->text()).toUtf8())) {
+    protocol->ConnectTo(ServerIP,ui->Port->text().toInt());
+    qvm.clear();
+    qvm["type"]="login";
+    qvm["nickname"]=ui->Nickname->text();
+    protocol->SendData(ServerIP,ui->Port->text().toInt(),qvm);
+}
+
+void LoginDialog::RecvData(const QString&,unsigned short,const QVariantMap &Data) {
+    if (Data["result"]=="success") {
         ui->TitleLabel->setText("Connected");
         QApplication::processEvents();
-    } else {
-        ui->TitleLabel->setText("Failed");
+        disconnect(protocol,SIGNAL(RecvData(QString,unsigned short,QVariantMap)),this,SLOT(RecvData(QString,unsigned short,QVariantMap)));
+        disconnect(protocol,SIGNAL(Reset(QString,unsigned short)),this,SLOT(Failed()));
+        MainWindow *w=new MainWindow(protocol,ServerIP,ui->Port->text().toInt(),ui->Nickname->text());
+        w->show();
+        this->hide();
+    } else if (Data["result"]=="fail") {
+        QMessageBox::critical(this,"Failed","Someone else used this nickname:\n"+ui->Nickname->text()+"\nYou have to change one.");
         ui->LoginButton->setEnabled(true);
     }
 }
 
-void LoginDialog::RecvData(const QString&,unsigned short,const QByteArray &Data) {
-    if (Data=="l1") {
-        disconnect(protocol,SIGNAL(RecvData(QString,unsigned short,QByteArray)),this,SLOT(RecvData(QString,unsigned short,QByteArray)));
-        MainWindow *w=new MainWindow(protocol,ServerIP,ui->Port->text().toInt(),ui->Nickname->text());
-        w->show();
-        this->hide();
-    } else if (Data=="l2") {
-        QMessageBox::critical(this,"Failed","Someone else used this nickname:\n"+ui->Nickname->text()+"\nYou have to change one.");
-        ui->LoginButton->setEnabled(true);
-    }
+void LoginDialog::Failed() {
+    ui->TitleLabel->setText("Failed");
+    ui->LoginButton->setEnabled(true);
 }

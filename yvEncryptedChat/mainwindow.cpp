@@ -22,7 +22,8 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #include "ui_mainwindow.h"
 
 MainWindow::MainWindow(yvEP *protocol,const QString &ServerIP,unsigned short ServerPort,const QString &Nickname,QWidget *parent):QMainWindow(parent),ui(new Ui::MainWindow),protocol(protocol),ServerIP(ServerIP),ServerPort(ServerPort),Nickname(Nickname),Cloaking(false) {
-    connect(protocol,SIGNAL(RecvData(QString,unsigned short,QByteArray)),this,SLOT(RecvData(QString,unsigned short,QByteArray)));
+    connect(protocol,SIGNAL(RecvData(QString,unsigned short,QVariantMap)),this,SLOT(RecvData(QString,unsigned short,QVariantMap)));
+    connect(protocol,SIGNAL(Reset(QString,unsigned short)),this,SLOT(Failed(QString,unsigned short)));
     ui->setupUi(this);
     listmodel=new QStringListModel(this);
     refreshtimer=new QTimer(this);
@@ -49,31 +50,31 @@ MainWindow::~MainWindow() {
     delete ui;
 }
 
-void MainWindow::RecvData(const QString&,unsigned short,const QByteArray &Data) {
-    if (Data.left(2)=="li") {
+void MainWindow::RecvData(const QString&,unsigned short,const QVariantMap &Data) {
+    if (Data["type"]=="list") {
         QStringList Clients;
         Clients.append("Broadcast");
-        if (Data.size()!=2)
-            Clients.append(QString(Data.mid(3)).split('\n'));
+        if (Data["list"]!="")
+            Clients.append(Data["list"].toString().split('\n'));
         listmodel->setStringList(Clients);
         ui->ClientList->setModel(listmodel);
-    } else if (Data.left(2)=="t1") {
-        QStringList qsl=QString(Data.mid(2)).split(":");
-        RemoteIP=qsl.at(0);
-        RemotePort=qsl.at(1).toInt();
-        RemoteNickname=qsl.at(2);
-        ui->Message->setEnabled(true);
-        ui->Message->setFocus();
-        if (DownLabel->text().left(DownLabel->text().length()-20)==RemoteNickname)
-            DownLabel->setText("");
-    } else if (Data.left(2)=="t2") {
-        QStringList qsl=QString(Data.mid(2)).split(":");
-        protocol->SendData(qsl.at(0),qsl.at(1).toInt(),"hello");
-    } else if (Data.left(2)=="t3") {
+    } else if (Data["type"]=="touch") {
+        if (Data["result"]=="1") {
+            RemoteIP=Data["IP"].toString();
+            RemotePort=Data["port"].toInt();
+            RemoteNickname=Data["nickname"].toString();
+            ui->Message->setEnabled(true);
+            ui->Message->setFocus();
+            if (DownLabel->text().left(DownLabel->text().length()-20)==RemoteNickname)
+                DownLabel->setText("");
+        } else {
+            protocol->SendRaw(Data["IP"].toString(),Data["port"].toInt(),QByteArray(1,0));
+        }
+    } else if (Data["type"]=="refresh") {
         Refresh();
-    } else if (Data[0]=='m') {
-        QString n=Data.mid(1,Data.indexOf('\n')-1);
-        History[n]+="<p style=\"text-align:left\"><font color=\"green\">"+QTime::currentTime().toString("hh:mm:ss")+' '+Data.mid(1).replace('\n',"<br>")+"</font></p>";
+    } else if (Data["type"]=="message") {
+        QString n=Data["nickname"].toString();
+        History[n]+="<p style=\"text-align:left\"><font color=\"green\">"+QTime::currentTime().toString("hh:mm:ss")+' '+n+"<br>"+Data["message"].toString().replace('\n',"<br>")+"</font></p>";
         if (n==RemoteNickname) {
             ui->History->setHtml(History[n]);
             CursorDown();
@@ -85,29 +86,27 @@ void MainWindow::RecvData(const QString&,unsigned short,const QByteArray &Data) 
             Notification->stop();
             Notification->play();
         }
-    } else if (Data[0]=='b') {
-        if (Data.mid(1,Data.indexOf('\n')-1)==Nickname)
-            return;
-        History["Broadcast"]+="<p style=\"text-align:left\"><font color=\"green\">"+QTime::currentTime().toString("hh:mm:ss")+' '+Data.mid(1).replace('\n',"<br>")+"</font></p>";
+    } else if (Data["type"]=="broadcast") {
+        History["Broadcast"]+="<p style=\"text-align:left\"><font color=\"green\">"+QTime::currentTime().toString("hh:mm:ss")+' '+Data["nickname"].toString()+"<br>"+Data["message"].toString().replace('\n',"<br>")+"</font></p>";
         if (RemoteNickname=="Broadcast") {
             ui->History->setHtml(History["Broadcast"]);
             CursorDown();
         }
-    } else if (Data.left(2)=="c1") {
-        Cloaking=1;
-        ui->CloakButton->setText("Decloak");
-    } else if (Data.left(2)=="c2") {
-        Cloaking=0;
-        ui->CloakButton->setText("Cloak");
-    } else if (Data.left(2)=="l3") {
+    } else if (Data["type"]=="cloak") {
+        if (Data["status"]=="cloaked") {
+            Cloaking=1;
+            ui->CloakButton->setText("Decloak");
+        } else {
+            Cloaking=0;
+            ui->CloakButton->setText("Cloak");
+        }
+    } else if (Data["type"]=="logout") {
         QApplication::quit();
-    } else if (Data.left(2)=="f0") {
-        QMessageBox::critical(this,"Error","Failed to deliver this message\nThe user has logged off");
-    } else if (Data.left(2)=="f1") {
-        QMessageBox::critical(this,"Error","Failed to deliver this message\nPossible reasons:\n- The package is missing\n- The user has logged off\nTry again");
-    } else if (Data[0]=='i') {
-        ui->History->setHtml(Data.mid(1));
+    } else if (Data["type"]=="info") {
+        ui->History->setHtml(Data["content"].toString());
         Refresh();
+    } else if (Data["type"]=="forward") {
+        QMessageBox::critical(this,"ERROR","The message wasn't sent out.\nThe user has logged out.");
     }
 }
 
@@ -115,34 +114,41 @@ void MainWindow::SendMessage() {
     if (ui->Message->text()=="")
         return;
     QString Message(ui->Prefix->text()+ui->Message->text()+ui->Suffix->text());
-    Message=Nickname+'\n'+Message;
-    if (RemoteNickname=="Broadcast"&&Cloaking)
-        Message="Cloaked\n"+Message;
-    History[RemoteNickname]+="<p style=\"text-align:right\"><font color=\"blue\">"+QTime::currentTime().toString("hh:mm:ss")+' '+QString(Message).replace('\n',"<br>")+"</font></p>";
+    History[RemoteNickname]+="<p style=\"text-align:right\"><font color=\"blue\">"+QTime::currentTime().toString("hh:mm:ss")+' '+Nickname+"<br>"+Message.replace('\n',"<br>")+"</font></p>";
     ui->History->setHtml(History[RemoteNickname]);
     CursorDown();
     ui->Message->setText("");
+    QVariantMap qvm;
+    qvm["nickname"]=Nickname;
+    qvm["message"]=Message;
     if (RemoteNickname=="Broadcast") {
-        if (!protocol->SendData(ServerIP,ServerPort,('b'+Message).toUtf8())) {
-            QMessageBox::critical(this,"Error","Failed to deliver this message\nThe message is too long");
-        }
+        qvm["type"]="broadcast";
+        if (Cloaking)
+            qvm["nickname"]="Cloaked";
+        protocol->SendData(ServerIP,ServerPort,qvm);
     } else if (ui->ServerForward->isChecked()) {
-        if (!protocol->SendAndConfirm(ServerIP,ServerPort,('f'+RemoteNickname+'\n'+Message).toUtf8())) {
-            QMessageBox::critical(this,"Error","Failed to deliver this message\nPossible reasons:\n- The package is missing\n- The server is shut down\nTry again");
-        }
+        qvm["type"]="forward";
+        qvm["to"]=RemoteNickname;
+        protocol->SendData(ServerIP,ServerPort,qvm);
     } else {
-        if (!protocol->SendAndConfirm(RemoteIP,RemotePort,('m'+Message).toUtf8())) {
-            QMessageBox::critical(this,"Error","Failed to deliver this message\nPossible reasons:\n- UDP punching is disabled\n- The package is missing\n- The user has logged off\nTry again or use Server Forwarding");
-        }
+        qvm["type"]="message";
+        protocol->ConnectTo(RemoteIP,RemotePort);
+        protocol->SendData(RemoteIP,RemotePort,qvm);
     }
 }
 
 void MainWindow::Refresh() {
-    protocol->SendData(ServerIP,ServerPort,"li");
+    QVariantMap qvm;
+    qvm["type"]="list";
+    qvm["nickname"]=Nickname;
+    protocol->SendData(ServerIP,ServerPort,qvm);
 }
 
 void MainWindow::closeEvent(QCloseEvent*) {
-    protocol->SendData(ServerIP,ServerPort,("l3"+Nickname).toUtf8());
+    QVariantMap qvm;
+    qvm["type"]="logout";
+    qvm["nickname"]=Nickname;
+    protocol->SendData(ServerIP,ServerPort,qvm);
 }
 
 void MainWindow::Touch(const QModelIndex &index) {
@@ -155,7 +161,10 @@ void MainWindow::Touch(const QModelIndex &index) {
         return;
     }
     ui->Message->setEnabled(false);
-    protocol->SendData(ServerIP,ServerPort,("t0"+index.data().toString()).toUtf8());
+    QVariantMap qvm;
+    qvm["type"]="touch";
+    qvm["nickname"]=index.data().toString();
+    protocol->SendData(ServerIP,ServerPort,qvm);
 }
 
 void MainWindow::CursorDown() {
@@ -165,7 +174,10 @@ void MainWindow::CursorDown() {
 }
 
 void MainWindow::Cloak() {
-    protocol->SendData(ServerIP,ServerPort,("c0"+Nickname).toUtf8());
+    QVariantMap qvm;
+    qvm["type"]="cloak";
+    qvm["nickname"]=Nickname;
+    protocol->SendData(ServerIP,ServerPort,qvm);
 }
 
 void MainWindow::ForwardCheck() {
@@ -176,4 +188,13 @@ void MainWindow::ForwardCheck() {
 void MainWindow::ClearHistory() {
     History[RemoteNickname]="";
     ui->History->setHtml("");
+}
+
+void MainWindow::Failed(const QString &IP,unsigned short Port) {
+    if (IP==ServerIP&&Port==ServerPort) {
+        QMessageBox::critical(this,"ERROR","Something wrong happens.\nThe connection to the server is down.");
+        protocol->ConnectTo(ServerIP,ServerPort);
+    } else {
+        QMessageBox::critical(this,"ERROR","Something wrong happens.\nThe message wasn't sent out.");
+    }
 }

@@ -20,14 +20,9 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 #include "udpsocket.h"
 
-UdpSocket::UdpSocket(unsigned short Port,QObject *parent):QUdpSocket(parent),bound(false) {
+UdpSocket::UdpSocket(QObject *parent):QUdpSocket(parent) {
     connect(this,SIGNAL(readyRead()),this,SLOT(ProcessData()));
     connect(this,SIGNAL(SendData(QString,unsigned short,QByteArray)),this,SLOT(SendDataSlot(QString,unsigned short,QByteArray)));
-    bound=bind(Port,QAbstractSocket::DontShareAddress);
-}
-
-bool UdpSocket::Bound() {
-    return bound;
 }
 
 void UdpSocket::ProcessData() {

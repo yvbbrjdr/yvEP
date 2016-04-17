@@ -47,7 +47,8 @@ private:
     QString ServerIP;
 private slots:
     void LoginPressed();
-    void RecvData(const QString&,unsigned short,const QByteArray &Data);
+    void RecvData(const QString&,unsigned short,const QVariantMap &Data);
+    void Failed();
 };
 
 #endif // LOGINDIALOG_H

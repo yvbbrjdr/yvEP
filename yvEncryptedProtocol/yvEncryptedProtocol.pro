@@ -15,11 +15,19 @@ DEFINES += YVENCRYPTEDPROTOCOL_LIBRARY
 
 SOURCES += \
     udpsocket.cpp \
-    yvep.cpp
+    yvep.cpp \
+    yvepsocket.cpp \
+    socketsender.cpp \
+    socketreceiver.cpp
 
 HEADERS += yvep.h\
     yvencryptedprotocol_global.h \
-    udpsocket.h
+    udpsocket.h \
+    yvepsocket.h \
+    socketbuffer.h \
+    socketsender.h \
+    socketreceiver.h \
+    statusflag.h
 
 DESTDIR += ../lib
 
