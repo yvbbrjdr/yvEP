@@ -23,41 +23,39 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 #include "yvencryptedprotocol_global.h"
 #include <QObject>
-#include <QByteArray>
-#include <sodium.h>
-#include <QString>
 #include <QThread>
-#include <QTime>
-#include <QCoreApplication>
 #include <QMap>
-#include <QFile>
-#include <QDataStream>
-#include <QSet>
+#include <QPair>
+#include <QString>
+#include <QVariantMap>
+#include <QJsonDocument>
+#include <sodium.h>
+#include "statusflag.h"
+#include "yvepsocket.h"
 #include "udpsocket.h"
 
 class YVENCRYPTEDPROTOCOLSHARED_EXPORT yvEP : public QObject {
     Q_OBJECT
-public:
-    explicit yvEP(unsigned short Port=0,QObject *parent=0);
-    ~yvEP();
-    bool Bound();
-    void GenerateKey();
-    bool LoadKey(const QString &Filename);
-    bool SaveKey(const QString &Filename);
-    void AutoKey(const QString &Filename);
-    bool SendData(const QString &IP,unsigned short Port,const QByteArray &Data);
-    bool SendAndConfirm(const QString &IP,unsigned short Port,const QByteArray &Data);
 private:
     UdpSocket *socket;
-    QThread *thread;
-    QByteArray LocalPublicKey,LocalPrivateKey;
-    bool KeyPrepared,Connecting;
-    QMap<QPair<QString,unsigned short>,QByteArray>PublicKeys,Buffer;
-    QSet<QByteArray>Accepted;
+    QThread *socketthread;
+    typedef QPair<QString,unsigned int> Addr;
+    QMap<Addr,yvEPSocket*>Remotes;
+public:
+    QByteArray PublicKey,PrivateKey;
+    explicit yvEP(QObject *parent = 0);
+    ~yvEP();
+    bool Bind(unsigned int Port);
+    bool ConnectTo(const QString &IP,unsigned short Port);
+    bool SendData(const QString &IP,unsigned short Port,const QVariantMap &Data);
+    void SendRaw(const QString &IP,unsigned short Port,const QByteArray &Data);
+    void ResetRemote(const QString &IP,unsigned short Port);
 signals:
-    void RecvData(const QString &IP,unsigned short Port,const QByteArray &Data);
+    void Connected(const QString &IP,unsigned short Port);
+    void RecvData(const QString &IP,unsigned short Port,const QVariantMap &Data);
+    void Reset(const QString &IP,unsigned short Port);
 private slots:
-    void ProcessData(const QString &IP,unsigned short Port,const QByteArray &Data);
+    void ProcessRaw(const QString &IP,unsigned short Port,const QByteArray &Data);
 };
 
 #endif // YVEP_H
