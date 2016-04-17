@@ -3,9 +3,9 @@
 
 #include "../plugin.h"
 
-class Echo : public QObject,public Plugin{
+class Echo : public QObject,public Plugin {
     Q_OBJECT
-    Q_PLUGIN_METADATA(IID "Echo" FILE "Echo.json")
+    Q_PLUGIN_METADATA(IID "Echo")
     Q_INTERFACES(Plugin)
 public:
     void Init(PluginManager *manager);

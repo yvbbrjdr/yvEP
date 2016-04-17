@@ -11,6 +11,6 @@ public:
 
 #include "pluginmanager.h"
 
-Q_DECLARE_INTERFACE(Plugin,"tk.yvbbrjdr.yvEncryptedChat.Plugin/1.0")
+Q_DECLARE_INTERFACE(Plugin,"tk.yvbbrjdr.yvEncryptedChat.Plugin")
 
 #endif // PLUGIN_H

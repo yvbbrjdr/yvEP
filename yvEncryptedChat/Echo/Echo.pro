@@ -8,9 +8,10 @@ TARGET = Echo
 TEMPLATE = lib
 CONFIG += plugin
 
-SOURCES += echo.cpp
+SOURCES += echo.cpp \
+    ../plugin.cpp
 
-HEADERS += echo.h
+HEADERS += echo.h \
+    ../plugin.h
 
-DISTFILES += \
-    Echo.json
+DISTFILES +=

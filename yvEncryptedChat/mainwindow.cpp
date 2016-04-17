@@ -204,6 +204,13 @@ void MainWindow::Failed(const QString &IP,unsigned short Port) {
 }
 
 void MainWindow::SendMsg(const QString &Nick,const QString &Content) {
+    QString Message(Content);
+    Message.replace('\n',"<br>");
+    History[Nick]+="<p style=\"text-align:right\"><font color=\"blue\">"+QTime::currentTime().toString("hh:mm:ss")+' '+Nickname+"<br>"+Message.replace('\n',"<br>")+"</font></p>";
+    if (Nick==RemoteNickname) {
+        ui->History->setHtml(History[Nick]);
+        CursorDown();
+    }
     QVariantMap qvm;
     qvm["type"]="forward";
     qvm["nickname"]=Nickname;
