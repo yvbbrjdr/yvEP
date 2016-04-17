@@ -212,9 +212,13 @@ void MainWindow::SendMsg(const QString &Nick,const QString &Content) {
         CursorDown();
     }
     QVariantMap qvm;
-    qvm["type"]="forward";
     qvm["nickname"]=Nickname;
-    qvm["to"]=Nick;
     qvm["message"]=Content;
+    if (Nick!="Broadcast") {
+        qvm["type"]="forward";
+        qvm["to"]=Nick;
+    } else {
+        qvm["type"]="broadcast";
+    }
     protocol->SendData(ServerIP,ServerPort,qvm);
 }
