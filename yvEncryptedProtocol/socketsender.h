@@ -10,7 +10,7 @@ class SocketSender : public QThread {
 private:
     SocketBuffer *buf;
     bool stop;
-    int count1,count2;
+    int count,count1,count2;
 public:
     explicit SocketSender(SocketBuffer *buf,QObject *parent=0);
     void Stop();

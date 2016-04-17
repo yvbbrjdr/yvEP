@@ -1,11 +1,14 @@
 #include "socketsender.h"
 
-SocketSender::SocketSender(SocketBuffer *buf,QObject *parent):QThread(parent),buf(buf),stop(false),count1(0),count2(0) {}
+SocketSender::SocketSender(SocketBuffer *buf,QObject *parent):QThread(parent),buf(buf),stop(false),count(0),count1(0),count2(0) {}
 
 void SocketSender::run() {
     while (!stop) {
         buf->mutex.lock();
         if (buf->PublicKey.size()==0) {
+            ++count;
+            if (count==100000)
+                emit Reset();
             buf->mutex.unlock();
             sleep(0);
             continue;

@@ -27,19 +27,20 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #include <QDateTime>
 #include <QFile>
 #include <QTextStream>
+#include <QCoreApplication>
 #include "userdata.h"
 
 class Server : public QObject {
     Q_OBJECT
 public:
-    Server(unsigned short Port);
+    Server();
     yvEP *protocol;
 private:
     QMap<QString,UserData>Clients;
     void Log(const QString &Content);
     QString Info;
 private slots:
-    void RecvData(const QString &IP,unsigned short Port,const QByteArray &Data);
+    void RecvData(const QString &IP,unsigned short Port,const QVariantMap &Data);
     void RemoveClient(const QString &Nickname);
 };
 

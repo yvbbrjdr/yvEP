@@ -20,8 +20,8 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 #include "mainthread.h"
 
-MainThread::MainThread(unsigned short Port) {
-    server=new Server(Port);
+MainThread::MainThread() {
+    server=new Server();
     connect(this,SIGNAL(RemoveClient(QString)),server,SLOT(RemoveClient(QString)));
 }
 

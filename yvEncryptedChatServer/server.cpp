@@ -20,10 +20,9 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 #include "server.h"
 
-Server::Server(unsigned short Port) {
-    protocol=new yvEP(Port);
-    protocol->AutoKey(QCoreApplication::applicationDirPath()+"/yvECS.key");
-    connect(protocol,SIGNAL(RecvData(QString,unsigned short,QByteArray)),this,SLOT(RecvData(QString,unsigned short,QByteArray)));
+Server::Server() {
+    protocol=new yvEP(this);
+    connect(protocol,SIGNAL(RecvData(QString,unsigned short,QVariantMap)),this,SLOT(RecvData(QString,unsigned short,QVariantMap)));
     QFile info(QCoreApplication::applicationDirPath()+"/yvECS.info");
     if (info.open(QIODevice::ReadOnly|QIODevice::Text)) {
         QTextStream qts(&info);
@@ -35,77 +34,104 @@ void Server::Log(const QString &Content) {
     fprintf(stderr,"[%s] %s\n",QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss").toUtf8().data(),Content.toUtf8().data());
 }
 
-void Server::RecvData(const QString &IP,unsigned short Port,const QByteArray &Data) {
-    if (Data.left(2)=="l0") {
-        if (Clients.find(Data.mid(2))==Clients.end()&&Data.mid(2)!="Broadcast") {
-            Log(QString("%1:%2 logged in as nickname %3").arg(IP).arg(Port).arg(QString(Data.mid(2))));
-            protocol->SendData(IP,Port,"l1");
+void Server::RecvData(const QString &IP,unsigned short Port,const QVariantMap &Data) {
+    QVariantMap qvm;
+    if (Data["type"]=="login") {
+        if (Clients.find(Data["nickname"].toString())==Clients.end()&&Data["nickname"]!="Broadcast") {
+            Log(QString("%1:%2 logged in as nickname %3").arg(IP).arg(Port).arg(Data["nickname"].toString()));
+            qvm["type"]="login";
+            qvm["result"]="success";
+            protocol->SendData(IP,Port,qvm);
+            qvm.clear();
+            qvm["type"]="refresh";
             for (QMap<QString,UserData>::iterator it=Clients.begin();it!=Clients.end();++it)
-                protocol->SendData(it.value().IP,it.value().Port,"t3");
-            Clients.insert(Data.mid(2),UserData(IP,Port));
-            protocol->SendAndConfirm(IP,Port,("i"+Info).toUtf8());
+                protocol->SendData(it.value().IP,it.value().Port,qvm);
+            Clients.insert(Data["nickname"].toString(),UserData(IP,Port));
+            qvm.clear();
+            qvm["type"]="info";
+            qvm["content"]=Info;
+            protocol->SendData(IP,Port,qvm);
         } else {
-            protocol->SendData(IP,Port,"l2");
-            Log(QString("%1:%2 tried to log in as nickname %3 but failed").arg(IP).arg(Port).arg(QString(Data.mid(2))));
+            qvm["type"]="login";
+            qvm["result"]="fail";
+            protocol->SendData(IP,Port,qvm);
+            Log(QString("%1:%2 tried to log in as nickname %3 but failed").arg(IP).arg(Port).arg(Data["nickname"].toString()));
         }
-    } else if (Data.left(2)=="li") {
-        QString s("li\n");
+    } else if (Data["type"]=="list") {
+        QString s;
         for (QMap<QString,UserData>::iterator it=Clients.begin();it!=Clients.end();++it) {
-            if (it.value().Cloak)
+            if (it.value().Cloak||it.key()==Data["nickname"].toString())
                 continue;
             s+=it.key()+'\n';
         }
-        if (protocol->SendAndConfirm(IP,Port,s.left(s.length()-1).toUtf8()))
-            Log(QString("%1:%2 requested the client list").arg(IP).arg(Port));
-        else
-            Log(QString("%1:%2 requested the client list but failed").arg(IP).arg(Port));
-    } else if (Data.left(2)=="l3") {
-        QString n(Data.mid(2));
+        s=s.left(s.length()-1);
+        qvm["type"]="list";
+        qvm["list"]=s;
+        protocol->SendData(IP,Port,qvm);
+    } else if (Data["type"]=="logout") {
+        QString n(Data["nickname"].toString());
         QMap<QString,UserData>::iterator it=Clients.find(n);
         if (it!=Clients.end()&&it.value().IP==IP&&it.value().Port==Port) {
             Clients.erase(it);
-            Log(QString("%1(%2:%3) logged off").arg(QString(Data.mid(2))).arg(IP).arg(Port));
+            Log(QString("%1(%2:%3) logged out").arg(n).arg(IP).arg(Port));
+            qvm["type"]="refresh";
             for (QMap<QString,UserData>::iterator it=Clients.begin();it!=Clients.end();++it)
-                protocol->SendData(it.value().IP,it.value().Port,"t3");
+                protocol->SendData(it.value().IP,it.value().Port,qvm);
         }
-    } else if (Data.left(2)=="t0") {
-        if (Clients.find(Data.mid(2))==Clients.end()||Clients.find(Data.mid(2)).value().Cloak) {
-            protocol->SendData(IP,Port,"t3");
-            Log(QString("%1:%2 requested the address of %3 but failed").arg(IP).arg(Port).arg(QString(Data.mid(2))));
+    } else if (Data["type"]=="touch") {
+        if (Clients.find(Data["nickname"].toString())==Clients.end()||Clients.find(Data["nickname"].toString()).value().Cloak) {
+            qvm["type"]="refresh";
+            protocol->SendData(IP,Port,qvm);
+            Log(QString("%1:%2 requested the address of %3 but failed").arg(IP).arg(Port).arg(Data["nickname"].toString()));
         } else {
-            UserData ipp=Clients.find(Data.mid(2)).value();
-            protocol->SendData(IP,Port,("t1"+ipp.IP+':'+QString::number(ipp.Port)+':'+Data.mid(2)).toUtf8());
-            protocol->SendData(ipp.IP,ipp.Port,("t2"+IP+':'+QString::number(Port)).toUtf8());
-            Log(QString("%1:%2 requested the address of %3(%4:%5)").arg(IP).arg(Port).arg(QString(Data.mid(2))).arg(ipp.IP).arg(ipp.Port));
+            UserData ipp=Clients.find(Data["nickname"].toString()).value();
+            qvm["type"]="touch";
+            qvm["result"]="1";
+            qvm["IP"]=ipp.IP;
+            qvm["port"]=ipp.Port;
+            qvm["nickname"]=Data["nickname"];
+            protocol->SendData(IP,Port,qvm);
+            qvm.clear();
+            qvm["type"]="touch";
+            qvm["result"]="2";
+            qvm["IP"]=IP;
+            qvm["port"]=Port;
+            protocol->SendData(ipp.IP,ipp.Port,qvm);
+            Log(QString("%1:%2 requested the address of %3(%4:%5)").arg(IP).arg(Port).arg(Data["nickname"].toString()).arg(ipp.IP).arg(ipp.Port));
         }
-    } else if (Data[0]=='f') {
-        QString n(Data.mid(1,Data.indexOf('\n')-1));
+    } else if (Data["type"]=="forward") {
+        QString n(Data["to"].toString());
         QMap<QString,UserData>::iterator it=Clients.find(n);
         if (it!=Clients.end()) {
-            if (!protocol->SendAndConfirm(it.value().IP,it.value().Port,'m'+Data.mid(Data.indexOf('\n')+1))) {
-                protocol->SendData(IP,Port,"f1");
-            }
-        } else {
-            protocol->SendData(IP,Port,"f0");
+            qvm["type"]="message";
+            qvm["nickname"]=Data["nickname"];
+            qvm["message"]=Data["message"];
+            protocol->SendData(it.value().IP,it.value().Port,qvm);
         }
-    } else if (Data[0]=='b') {
+    } else if (Data["type"]=="broadcast") {
         for (QMap<QString,UserData>::iterator it=Clients.begin();it!=Clients.end();++it)
             if (it.value().IP!=IP||it.value().Port!=Port)
                 protocol->SendData(it.value().IP,it.value().Port,Data);
-    } else if (Data.left(2)=="c0") {
-        QString n(Data.mid(2));
+    } else if (Data["type"]=="cloak") {
+        QString n(Data["nickname"].toString());
         QMap<QString,UserData>::iterator it=Clients.find(n);
         if (it!=Clients.end()&&it.value().IP==IP&&it.value().Port==Port) {
             it.value().Cloak=!it.value().Cloak;
             if (it.value().Cloak) {
-                protocol->SendData(IP,Port,"c1");
-                Log(QString("%1(%2:%3) cloaked").arg(QString(Data.mid(2))).arg(IP).arg(Port));
+                qvm["type"]="cloak";
+                qvm["status"]="cloaked";
+                protocol->SendData(IP,Port,qvm);
+                Log(QString("%1(%2:%3) cloaked").arg(Data["nickname"].toString()).arg(IP).arg(Port));
             } else {
-                protocol->SendData(IP,Port,"c2");
-                Log(QString("%1(%2:%3) decloaked").arg(QString(Data.mid(2))).arg(IP).arg(Port));
+                qvm["type"]="cloak";
+                qvm["status"]="decloaked";
+                protocol->SendData(IP,Port,qvm);
+                Log(QString("%1(%2:%3) decloaked").arg(Data["nickname"].toString()).arg(IP).arg(Port));
             }
+            qvm.clear();
+            qvm["type"]="refresh";
             for (QMap<QString,UserData>::iterator it=Clients.begin();it!=Clients.end();++it)
-                protocol->SendData(it.value().IP,it.value().Port,"t3");
+                protocol->SendData(it.value().IP,it.value().Port,qvm);
         }
     }
 }
@@ -114,10 +140,14 @@ void Server::RemoveClient(const QString &Nickname) {
     QMap<QString,UserData>::iterator it=Clients.find(Nickname);
     if (it!=Clients.end()) {
         Log(QString("%1(%2:%3) is forced to log off").arg(Nickname).arg(it.value().IP).arg(it.value().Port));
-        protocol->SendData(it.value().IP,it.value().Port,"l3");
+        QVariantMap qvm;
+        qvm["type"]="logout";
+        protocol->SendData(it.value().IP,it.value().Port,qvm);
         Clients.remove(Nickname);
+        qvm.clear();
+        qvm["type"]="refresh";
         for (QMap<QString,UserData>::iterator it=Clients.begin();it!=Clients.end();++it)
-            protocol->SendData(it.value().IP,it.value().Port,"t3");
+            protocol->SendData(it.value().IP,it.value().Port,qvm);
     } else {
         Log(QString("%1 is not found").arg(Nickname));
     }

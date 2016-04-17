@@ -35,8 +35,8 @@ int main(int argc, char *argv[]) {
         Port=QString(argv[1]).toShort();
     puts("Welcome to yvEncryptedChatServer\n");
     fflush(stdout);
-    MainThread thread(Port);
-    if (!thread.server->protocol->Bound()) {
+    MainThread thread;
+    if (!thread.server->protocol->Bind(Port)) {
         printf("Failed to bind to Port %d, exiting. . . \n",Port);
         exit(0);
     }

@@ -28,7 +28,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 class MainThread : public QThread {
     Q_OBJECT
 public:
-    MainThread(unsigned short Port);
+    MainThread();
     Server *server;
 protected:
     void run();

@@ -76,7 +76,6 @@ void yvEP::ProcessRaw(const QString &IP,unsigned short Port,const QByteArray &Da
         } else {
             if (it!=Remotes.end()) {
                 ResetRemote(IP,Port);
-                ResetRemote(IP,Port);
             } else {
                 QMap<Addr,yvEPSocket*>::iterator it=Remotes.insert(Addr(IP,Port),new yvEPSocket(IP,Port,this,this));
                 it.value()->buffer->mutex.lock();

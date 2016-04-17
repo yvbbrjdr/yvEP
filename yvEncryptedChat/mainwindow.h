@@ -33,6 +33,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #include <QLabel>
 #include <QMediaPlayer>
 #include <QDir>
+#include <QTime>
 
 namespace Ui {
     class MainWindow;
@@ -60,13 +61,14 @@ private:
     bool Cloaking;
     QMediaPlayer *Notification;
 private slots:
-    void RecvData(const QString&,unsigned short,const QByteArray &Data);
+    void RecvData(const QString&,unsigned short,const QVariantMap &Data);
     void SendMessage();
     void Refresh();
     void Cloak();
     void Touch(const QModelIndex &index);
     void ForwardCheck();
     void ClearHistory();
+    void Failed(const QString &IP,unsigned short Port);
 protected:
     void closeEvent(QCloseEvent*);
 };
