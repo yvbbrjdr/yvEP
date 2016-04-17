@@ -105,6 +105,8 @@ void MainWindow::RecvData(const QString&,unsigned short,const QVariantMap &Data)
     } else if (Data["type"]=="info") {
         ui->History->setHtml(Data["content"].toString());
         Refresh();
+    } else if (Data["type"]=="forward") {
+        QMessageBox::critical(this,"ERROR","The message wasn't sent out.\nThe user has logged out.");
     }
 }
 

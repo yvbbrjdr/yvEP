@@ -107,6 +107,10 @@ void Server::RecvData(const QString &IP,unsigned short Port,const QVariantMap &D
             qvm["nickname"]=Data["nickname"];
             qvm["message"]=Data["message"];
             protocol->SendData(it.value().IP,it.value().Port,qvm);
+        } else {
+            qvm["type"]="forward";
+            qvm["status"]="fail";
+            protocol->SendData(IP,Port,qvm);
         }
     } else if (Data["type"]=="broadcast") {
         for (QMap<QString,UserData>::iterator it=Clients.begin();it!=Clients.end();++it)
