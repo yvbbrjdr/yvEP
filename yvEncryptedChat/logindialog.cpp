@@ -36,6 +36,7 @@ LoginDialog::LoginDialog(QWidget *parent):QDialog(parent),ui(new Ui::LoginDialog
     }
     connect(ui->LoginButton,SIGNAL(clicked(bool)),this,SLOT(LoginPressed()));
     protocol=new yvEP;
+    protocol->Bind(0);
     connect(protocol,SIGNAL(RecvData(QString,unsigned short,QVariantMap)),this,SLOT(RecvData(QString,unsigned short,QVariantMap)));
     connect(protocol,SIGNAL(Reset(QString,unsigned short)),this,SLOT(Failed()));
 }
@@ -73,11 +74,9 @@ void LoginDialog::LoginPressed() {
 
 void LoginDialog::RecvData(const QString&,unsigned short,const QVariantMap &Data) {
     if (Data["result"]=="success") {
-        ui->TitleLabel->setText("Connected");
-        QApplication::processEvents();
+        MainWindow *w=new MainWindow(protocol,ServerIP,ui->Port->text().toInt(),ui->Nickname->text());
         disconnect(protocol,SIGNAL(RecvData(QString,unsigned short,QVariantMap)),this,SLOT(RecvData(QString,unsigned short,QVariantMap)));
         disconnect(protocol,SIGNAL(Reset(QString,unsigned short)),this,SLOT(Failed()));
-        MainWindow *w=new MainWindow(protocol,ServerIP,ui->Port->text().toInt(),ui->Nickname->text());
         w->show();
         this->hide();
     } else if (Data["result"]=="fail") {
