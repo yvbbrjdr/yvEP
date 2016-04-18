@@ -78,7 +78,7 @@ void LoginDialog::RecvData(const QString&,unsigned short,const QVariantMap &Data
         disconnect(protocol,SIGNAL(RecvData(QString,unsigned short,QVariantMap)),this,SLOT(RecvData(QString,unsigned short,QVariantMap)));
         disconnect(protocol,SIGNAL(Reset(QString,unsigned short)),this,SLOT(Failed()));
         w->show();
-        this->hide();
+        close();
     } else if (Data["result"]=="fail") {
         QMessageBox::critical(this,"Failed","Someone else used this nickname:\n"+ui->Nickname->text()+"\nYou have to change one.");
         ui->LoginButton->setEnabled(true);
