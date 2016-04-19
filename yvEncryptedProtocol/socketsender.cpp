@@ -10,7 +10,7 @@ void SocketSender::run() {
             if (count==100000)
                 emit Reset();
             buf->mutex.unlock();
-            sleep(0);
+            sleep(1);
             continue;
         }
         if (buf->SendNonce!=buf->ReplyNonce) {
@@ -26,12 +26,12 @@ void SocketSender::run() {
                 emit SendRaw(buf->LastSend);
             }
             buf->mutex.unlock();
-            sleep(0);
+            sleep(1);
             continue;
         }
         if (buf->SendBuf.size()==0) {
             buf->mutex.unlock();
-            sleep(0);
+            sleep(1);
             continue;
         }
         count1=count2=0;

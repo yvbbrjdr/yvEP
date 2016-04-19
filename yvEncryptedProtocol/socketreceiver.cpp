@@ -12,7 +12,7 @@ void SocketReceiver::run() {
                 quote=!quote;
         if (e==-1||quote) {
             buf->mutex.unlock();
-            sleep(0);
+            sleep(1);
             continue;
         }
         emit RecvData(QJsonDocument::fromJson(buf->RecvBuf.left(e+1)).toVariant().toMap());
