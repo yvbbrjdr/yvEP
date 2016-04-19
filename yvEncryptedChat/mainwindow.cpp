@@ -1,4 +1,4 @@
-﻿/*
+/*
 This file is part of yvEncryptedChat
 yvEncryptedChat is an IM program that provides secure chats. 
 Copyright (C) 2016  yvbbrjdr
