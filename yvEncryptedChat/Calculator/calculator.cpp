@@ -6,6 +6,8 @@ void Calculator::Init(PluginManager *manager) {
 }
 
 void Calculator::RecvMsg(const QString &Nickname,const QString &Content) {
+    if (Nickname=="Broadcast")
+        return;
     for (int i=0;i<Content.length();++i) {
         if (Content[i].isLetter()) {
             emit SendMsg(Nickname,"Letters are forbidden in the expression");
