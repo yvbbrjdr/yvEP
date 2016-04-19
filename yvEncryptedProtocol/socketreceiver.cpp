@@ -6,7 +6,11 @@ void SocketReceiver::run() {
     while (!stop) {
         buf->mutex.lock();
         int e=buf->RecvBuf.indexOf('}');
-        if (e==-1) {
+        bool quote=0;
+        for (int i=0;i<e;++i)
+            if (buf->RecvBuf[i]=='\"')
+                quote=!quote;
+        if (e==-1||quote) {
             buf->mutex.unlock();
             sleep(0);
             continue;
