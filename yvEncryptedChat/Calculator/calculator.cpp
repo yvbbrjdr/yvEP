@@ -6,5 +6,11 @@ void Calculator::Init(PluginManager *manager) {
 }
 
 void Calculator::RecvMsg(const QString &Nickname,const QString &Content) {
+    for (int i=0;i<Content.length();++i) {
+        if (Content[i].isLetter()) {
+            emit SendMsg(Nickname,"Letters are forbidden in the expression");
+            return;
+        }
+    }
     emit SendMsg(Nickname,qse.evaluate(Content).toString());
 }
