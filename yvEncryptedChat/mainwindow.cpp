@@ -36,7 +36,7 @@ MainWindow::MainWindow(yvEP *protocol,const QString &ServerIP,unsigned short Ser
     Notification=new QMediaPlayer(this);
     Notification->setMedia(QUrl::fromLocalFile(QApplication::applicationDirPath()+"/notification.wav"));
     Notification->setVolume(100);
-    pm=new PluginManager(this);
+    pm=new PluginManager;
     connect(pm,SIGNAL(SendMsg(QString,QString)),this,SLOT(SendMsg(QString,QString)));
     connect(ui->Message,SIGNAL(returnPressed()),this,SLOT(SendMessage()));
     connect(ui->RefreshButton,SIGNAL(clicked(bool)),this,SLOT(Refresh()));
@@ -155,6 +155,7 @@ void MainWindow::closeEvent(QCloseEvent*) {
     protocol->SendData(ServerIP,ServerPort,qvm);
     QTime t=QTime::currentTime();
     while (t.msecsTo(QTime::currentTime())<=100);
+    delete pm;
 }
 
 void MainWindow::Touch(const QModelIndex &index) {
