@@ -27,7 +27,7 @@ void SocketSender::run() {
         buf->mutex.lock();
         if (buf->PublicKey.size()==0) {
             ++count;
-            if (count==100000)
+            if (count==10000)
                 emit Reset();
             buf->mutex.unlock();
             msleep(1);
@@ -35,7 +35,7 @@ void SocketSender::run() {
         }
         if (buf->SendNonce!=buf->ReplyNonce) {
             ++count1;
-            if (count1==10000) {
+            if (count1==1000) {
                 ++count2;
                 if (count2==10) {
                     buf->mutex.unlock();
