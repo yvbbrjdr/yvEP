@@ -153,6 +153,8 @@ void MainWindow::closeEvent(QCloseEvent*) {
     qvm["type"]="logout";
     qvm["nickname"]=Nickname;
     protocol->SendData(ServerIP,ServerPort,qvm);
+    QTime t=QTime::currentTime();
+    while (t.msecsTo(QTime::currentTime())<=100);
 }
 
 void MainWindow::Touch(const QModelIndex &index) {
