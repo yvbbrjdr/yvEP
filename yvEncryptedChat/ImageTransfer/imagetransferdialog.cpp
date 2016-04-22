@@ -3,7 +3,6 @@
 
 ImageTransferDialog::ImageTransferDialog(PluginManager *manager):ui(new Ui::ImageTransferDialog) {
     ui->setupUi(this);
-    setWindowFlags(windowFlags()|Qt::WindowStaysOnTopHint);
     connect(manager,SIGNAL(RecvMsg(QString,QString)),this,SLOT(RecvMsg(QString,QString)));
     connect(this,SIGNAL(SendMsg(QString,QString)),manager,SIGNAL(SendMsg(QString,QString)));
     connect(ui->pushButton,SIGNAL(clicked(bool)),this,SLOT(Transfer()));
