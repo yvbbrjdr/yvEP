@@ -26,11 +26,7 @@ void SocketReceiver::run() {
     while (!stop) {
         buf->mutex.lock();
         int e=buf->RecvBuf.indexOf('}');
-        bool quote=0;
-        for (int i=0;i<e;++i)
-            if (buf->RecvBuf[i]=='\"')
-                quote=!quote;
-        if (e==-1||quote) {
+        if (e==-1) {
             buf->mutex.unlock();
             msleep(1);
             continue;

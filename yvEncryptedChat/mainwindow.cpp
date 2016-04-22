@@ -122,6 +122,10 @@ void MainWindow::SendMessage() {
     if (ui->Message->text()=="")
         return;
     QString Message(ui->Prefix->text()+ui->Message->text()+ui->Suffix->text());
+    if (Message.indexOf('{')!=-1||Message.indexOf('}')!=-1) {
+        QMessageBox::critical(this,"Error","Invalid characters (\'\{',\'}\')");
+        return;
+    }
     History[RemoteNickname]+="<p style=\"text-align:right\"><font color=\"blue\">"+QTime::currentTime().toString("hh:mm:ss")+' '+Nickname+"<br>"+Message.replace('\n',"<br>")+"</font></p>";
     ui->History->setHtml(History[RemoteNickname]);
     CursorDown();
