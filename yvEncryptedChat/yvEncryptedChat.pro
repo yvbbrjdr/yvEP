@@ -16,12 +16,14 @@ SOURCES += main.cpp\
         mainwindow.cpp \
     logindialog.cpp \
     plugin.cpp \
-    pluginmanager.cpp
+    pluginmanager.cpp \
+    configmanager.cpp
 
 HEADERS  += mainwindow.h \
     logindialog.h \
     plugin.h \
-    pluginmanager.h
+    pluginmanager.h \
+    configmanager.h
 
 FORMS    += mainwindow.ui \
     logindialog.ui

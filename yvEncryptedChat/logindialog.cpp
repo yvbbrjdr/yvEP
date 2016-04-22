@@ -24,14 +24,12 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 LoginDialog::LoginDialog(QWidget *parent):QDialog(parent),ui(new Ui::LoginDialog),protocol(NULL) {
     ui->setupUi(this);
     ui->Address->setFocus();
-    QFile config(QApplication::applicationDirPath()+"/yvEC.config");
-    if (config.open(QIODevice::ReadOnly|QIODevice::Text)) {
-        QTextStream stream(&config);
-        QVariantMap qvm(QJsonDocument::fromJson(stream.readAll().toUtf8()).toVariant().toMap());
+    ConfigManager config;
+    QVariantMap qvm(config.GetConfig(QApplication::applicationDirPath()+"/yvEC.config"));
+    if (!qvm.empty()) {
         ui->Address->setText(qvm["addr"].toString());
         ui->Port->setText(qvm["port"].toString());
         ui->Nickname->setText(qvm["name"].toString());
-        config.close();
         ui->LoginButton->setFocus();
     }
     connect(ui->LoginButton,SIGNAL(clicked(bool)),this,SLOT(LoginPressed()));
@@ -51,15 +49,12 @@ void LoginDialog::LoginPressed() {
         return;
     }
     ui->LoginButton->setEnabled(false);
-    QVariantMap qvm;
+    ConfigManager config;
+    QVariantMap qvm(config.GetConfig(QApplication::applicationDirPath()+"/yvEC.config"));
     qvm.insert("addr",ui->Address->text());
     qvm.insert("port",ui->Port->text().toInt());
     qvm.insert("name",ui->Nickname->text());
-    QFile config(QApplication::applicationDirPath()+"/yvEC.config");
-    config.open(QIODevice::WriteOnly|QIODevice::Text);
-    QTextStream stream(&config);
-    stream<<QJsonDocument::fromVariant(qvm).toJson();
-    config.close();
+    config.SetConfig(QApplication::applicationDirPath()+"/yvEC.config",qvm);
     ui->TitleLabel->setText("Connecting");
     QApplication::processEvents();
     ServerIP=ui->Address->text();

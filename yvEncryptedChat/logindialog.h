@@ -31,6 +31,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #include <QChar>
 #include "yvep.h"
 #include "mainwindow.h"
+#include "configmanager.h"
 
 namespace Ui {
     class LoginDialog;

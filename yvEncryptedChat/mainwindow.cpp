@@ -45,6 +45,10 @@ MainWindow::MainWindow(yvEP *protocol,const QString &ServerIP,unsigned short Ser
     connect(ui->ClientList,SIGNAL(clicked(QModelIndex)),this,SLOT(Touch(QModelIndex)));
     connect(ui->ServerForward,SIGNAL(stateChanged(int)),this,SLOT(ForwardCheck()));
     connect(ui->ClearHistory,SIGNAL(clicked(bool)),this,SLOT(ClearHistory()));
+    ConfigManager config;
+    QVariantMap qvm(config.GetConfig(QApplication::applicationDirPath()+"/yvEC.config"));
+    ui->Prefix->setText(qvm["prefix"].toString());
+    ui->Suffix->setText(qvm["suffix"].toString());
     refreshtimer->start(30000);
 }
 
@@ -153,6 +157,11 @@ void MainWindow::closeEvent(QCloseEvent*) {
     qvm["type"]="logout";
     qvm["nickname"]=Nickname;
     protocol->SendData(ServerIP,ServerPort,qvm);
+    ConfigManager config;
+    qvm=config.GetConfig(QApplication::applicationDirPath()+"/yvEC.config");
+    qvm["prefix"]=ui->Prefix->text();
+    qvm["suffix"]=ui->Suffix->text();
+    config.SetConfig(QApplication::applicationDirPath()+"/yvEC.config",qvm);
     QTime t=QTime::currentTime();
     while (t.msecsTo(QTime::currentTime())<=100);
     delete pm;

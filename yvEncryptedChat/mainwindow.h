@@ -35,6 +35,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #include <QDir>
 #include <QTime>
 #include "pluginmanager.h"
+#include "configmanager.h"
 
 namespace Ui {
     class MainWindow;
