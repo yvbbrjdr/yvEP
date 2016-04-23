@@ -39,7 +39,6 @@ MainWindow::MainWindow(yvEP *protocol,const QString &ServerIP,unsigned short Ser
     pm=new PluginManager;
     connect(pm,SIGNAL(SendMsg(QString,QString)),this,SLOT(SendMsg(QString,QString)));
     connect(ui->Message,SIGNAL(returnPressed()),this,SLOT(SendMessage()));
-    connect(ui->RefreshButton,SIGNAL(clicked(bool)),this,SLOT(Refresh()));
     connect(ui->CloakButton,SIGNAL(clicked(bool)),this,SLOT(Cloak()));
     connect(refreshtimer,SIGNAL(timeout()),this,SLOT(Refresh()));
     connect(ui->ClientList,SIGNAL(clicked(QModelIndex)),this,SLOT(Touch(QModelIndex)));

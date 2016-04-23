@@ -67,16 +67,16 @@
       <item>
        <layout class="QHBoxLayout" name="ControlLayout2">
         <item>
-         <widget class="QPushButton" name="RefreshButton">
+         <widget class="QPushButton" name="CloakButton">
           <property name="text">
-           <string>Refresh</string>
+           <string>Cloak</string>
           </property>
          </widget>
         </item>
         <item>
-         <widget class="QPushButton" name="CloakButton">
+         <widget class="QPushButton" name="ClearHistory">
           <property name="text">
-           <string>Cloak</string>
+           <string>Clear</string>
           </property>
          </widget>
         </item>
@@ -86,13 +86,6 @@
        <widget class="QListView" name="ClientList">
         <property name="editTriggers">
          <set>QAbstractItemView::NoEditTriggers</set>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QPushButton" name="ClearHistory">
-        <property name="text">
-         <string>Clear History</string>
         </property>
        </widget>
       </item>
