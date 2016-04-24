@@ -60,7 +60,7 @@ void Server::RecvData(const QString &IP,unsigned short Port,const QVariantMap &D
     } else if (Data["type"]=="list") {
         QString s;
         for (QMap<QString,UserData>::iterator it=Clients.begin();it!=Clients.end();++it) {
-            if (it.value().Cloak||it.key()==Data["nickname"].toString())
+            if (it.value().Cloak)
                 continue;
             s+=it.key()+'\n';
         }

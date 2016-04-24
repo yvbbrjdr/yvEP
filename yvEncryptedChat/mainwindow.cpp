@@ -180,6 +180,11 @@ void MainWindow::Touch(const QModelIndex &index) {
         return;
     }
     ui->Message->setEnabled(false);
+    if (index.data().toString()==Nickname) {
+        QMessageBox::warning(this,"Warning","You can't chat with yourself!");
+        RemoteNickname=Nickname;
+        return;
+    }
     QVariantMap qvm;
     qvm["type"]="touch";
     qvm["nickname"]=index.data().toString();
