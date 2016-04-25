@@ -183,6 +183,8 @@ void MainWindow::Touch(const QModelIndex &index) {
     if (index.data().toString()==Nickname) {
         QMessageBox::warning(this,"Warning","You can't chat with yourself!");
         RemoteNickname=Nickname;
+        if (DownLabel->text().left(DownLabel->text().length()-20)==RemoteNickname)
+            DownLabel->setText("");
         return;
     }
     QVariantMap qvm;
