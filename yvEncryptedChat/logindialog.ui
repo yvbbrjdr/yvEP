@@ -10,103 +10,81 @@
     <height>192</height>
    </rect>
   </property>
-  <property name="minimumSize">
-   <size>
-    <width>251</width>
-    <height>192</height>
-   </size>
-  </property>
-  <property name="maximumSize">
-   <size>
-    <width>251</width>
-    <height>192</height>
-   </size>
-  </property>
   <property name="windowTitle">
    <string>Login</string>
   </property>
-  <widget class="QWidget" name="verticalLayoutWidget">
-   <property name="geometry">
-    <rect>
-     <x>10</x>
-     <y>10</y>
-     <width>231</width>
-     <height>171</height>
-    </rect>
-   </property>
-   <layout class="QVBoxLayout" name="verticalLayout">
-    <item>
-     <widget class="QLabel" name="TitleLabel">
-      <property name="font">
-       <font>
-        <pointsize>18</pointsize>
-       </font>
-      </property>
-      <property name="text">
-       <string>yvEncryptedChat</string>
-      </property>
-      <property name="alignment">
-       <set>Qt::AlignCenter</set>
-      </property>
-     </widget>
-    </item>
-    <item>
-     <widget class="QLineEdit" name="Address">
-      <property name="alignment">
-       <set>Qt::AlignCenter</set>
-      </property>
-      <property name="placeholderText">
-       <string>Server Address</string>
-      </property>
-     </widget>
-    </item>
-    <item>
-     <widget class="QLineEdit" name="Port">
-      <property name="text">
-       <string>2428</string>
-      </property>
-      <property name="maxLength">
-       <number>5</number>
-      </property>
-      <property name="alignment">
-       <set>Qt::AlignCenter</set>
-      </property>
-      <property name="placeholderText">
-       <string>Server Port</string>
-      </property>
-     </widget>
-    </item>
-    <item>
-     <widget class="QLineEdit" name="Nickname">
-      <property name="text">
-       <string>Anonymous</string>
-      </property>
-      <property name="maxLength">
-       <number>16</number>
-      </property>
-      <property name="alignment">
-       <set>Qt::AlignCenter</set>
-      </property>
-      <property name="placeholderText">
-       <string>Nickname</string>
-      </property>
-     </widget>
-    </item>
-    <item>
-     <widget class="QPushButton" name="LoginButton">
-      <property name="text">
-       <string>Login</string>
-      </property>
-      <property name="autoDefault">
-       <bool>false</bool>
-      </property>
-      <property name="default">
-       <bool>true</bool>
-      </property>
-     </widget>
-    </item>
-   </layout>
-  </widget>
+  <layout class="QVBoxLayout" name="verticalLayout">
+   <item>
+    <widget class="QLabel" name="TitleLabel">
+     <property name="font">
+      <font>
+       <pointsize>18</pointsize>
+      </font>
+     </property>
+     <property name="text">
+      <string>yvEncryptedChat</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignCenter</set>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QLineEdit" name="Address">
+     <property name="alignment">
+      <set>Qt::AlignCenter</set>
+     </property>
+     <property name="placeholderText">
+      <string>Server Address</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QLineEdit" name="Port">
+     <property name="text">
+      <string>2428</string>
+     </property>
+     <property name="maxLength">
+      <number>5</number>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignCenter</set>
+     </property>
+     <property name="placeholderText">
+      <string>Server Port</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QLineEdit" name="Nickname">
+     <property name="text">
+      <string>Anonymous</string>
+     </property>
+     <property name="maxLength">
+      <number>16</number>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignCenter</set>
+     </property>
+     <property name="placeholderText">
+      <string>Nickname</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QPushButton" name="LoginButton">
+     <property name="text">
+      <string>Login</string>
+     </property>
+     <property name="autoDefault">
+      <bool>false</bool>
+     </property>
+     <property name="default">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+  </layout>
  </widget>
  <resources/>
  <connections/>
