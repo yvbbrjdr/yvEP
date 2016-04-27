@@ -17,16 +17,19 @@ SOURCES += main.cpp\
     logindialog.cpp \
     plugin.cpp \
     pluginmanager.cpp \
-    configmanager.cpp
+    configmanager.cpp \
+    aboutdialog.cpp
 
 HEADERS  += mainwindow.h \
     logindialog.h \
     plugin.h \
     pluginmanager.h \
-    configmanager.h
+    configmanager.h \
+    aboutdialog.h
 
 FORMS    += mainwindow.ui \
-    logindialog.ui
+    logindialog.ui \
+    aboutdialog.ui
 
 INCLUDEPATH += ../yvEncryptedProtocol
 

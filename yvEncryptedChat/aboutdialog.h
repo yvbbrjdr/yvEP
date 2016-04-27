@@ -1,6 +1,6 @@
 /*
 This file is part of yvEncryptedChat
-yvEncryptedChat is an IM program that provides secure chats. 
+yvEncryptedChat is an IM program that provides secure chats.
 Copyright (C) 2016  yvbbrjdr
 
 This program is free software; you can redistribute it and/or modify
@@ -18,41 +18,24 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 */
 
-#ifndef LOGINDIALOG_H
-#define LOGINDIALOG_H
+#ifndef ABOUTDIALOG_H
+#define ABOUTDIALOG_H
 
 #include <QDialog>
-#include <QFile>
-#include <QTextStream>
-#include <QJsonDocument>
-#include <QVariantMap>
-#include <QByteArray>
-#include <QHostInfo>
-#include <QChar>
-#include "yvep.h"
-#include "mainwindow.h"
-#include "configmanager.h"
-#include "aboutdialog.h"
 
 namespace Ui {
-    class LoginDialog;
+    class AboutDialog;
 }
 
-class LoginDialog : public QDialog {
+class AboutDialog : public QDialog {
     Q_OBJECT
 public:
-    explicit LoginDialog(QWidget *parent=0);
-    ~LoginDialog();
+    explicit AboutDialog(QWidget *parent = 0);
+    ~AboutDialog();
 private:
-    Ui::LoginDialog *ui;
-    yvEP *protocol;
-    QString ServerIP;
-    AboutDialog *ad;
+    Ui::AboutDialog *ui;
 private slots:
-    void LoginPressed();
-    void AboutPressed();
-    void RecvData(const QString&,unsigned short,const QVariantMap &Data);
-    void Failed();
+    void AboutQt();
 };
 
-#endif // LOGINDIALOG_H
+#endif // ABOUTDIALOG_H

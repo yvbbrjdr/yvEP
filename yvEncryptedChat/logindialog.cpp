@@ -33,6 +33,8 @@ LoginDialog::LoginDialog(QWidget *parent):QDialog(parent),ui(new Ui::LoginDialog
         ui->LoginButton->setFocus();
     }
     connect(ui->LoginButton,SIGNAL(clicked(bool)),this,SLOT(LoginPressed()));
+    connect(ui->AboutButton,SIGNAL(clicked(bool)),this,SLOT(AboutPressed()));
+    ad=new AboutDialog(this);
     protocol=new yvEP;
     protocol->Bind(0);
     connect(protocol,SIGNAL(RecvData(QString,unsigned short,QVariantMap)),this,SLOT(RecvData(QString,unsigned short,QVariantMap)));
@@ -45,7 +47,7 @@ LoginDialog::~LoginDialog() {
 
 void LoginDialog::LoginPressed() {
     if (ui->Address->text()==""||ui->Port->text()==""||ui->Nickname->text()=="") {
-        QMessageBox::aboutQt(this,"About Qt");
+        QMessageBox::critical(this,"Error","Please complete the form");
         return;
     }
     if (ui->Nickname->text().indexOf('{')!=-1||ui->Nickname->text().indexOf('}')!=-1) {
@@ -87,4 +89,8 @@ void LoginDialog::RecvData(const QString&,unsigned short,const QVariantMap &Data
 void LoginDialog::Failed() {
     ui->TitleLabel->setText("Failed");
     ui->LoginButton->setEnabled(true);
+}
+
+void LoginDialog::AboutPressed() {
+    ad->show();
 }
