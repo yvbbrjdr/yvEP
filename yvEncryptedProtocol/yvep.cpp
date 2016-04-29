@@ -113,6 +113,17 @@ void yvEP::ResetRemote(const QString &IP,unsigned short Port) {
     }
 }
 
+unsigned long yvEP::BufferRemain() {
+    unsigned long ret=0;
+    for (QMap<Addr,yvEPSocket*>::iterator it=Remotes.begin();it!=Remotes.end();++it) {
+        it.value()->buffer->mutex.lock();
+        ret+=it.value()->buffer->SendBuf.size();
+        ret+=it.value()->buffer->RecvBuf.size();
+        it.value()->buffer->mutex.unlock();
+    }
+    return ret;
+}
+
 yvEP::~yvEP() {
     socketthread->quit();
     socketthread->wait();

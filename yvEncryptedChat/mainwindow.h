@@ -56,10 +56,10 @@ private:
     unsigned short RemotePort;
     QString RemoteNickname;
     QStringListModel *listmodel;
-    QTimer *refreshtimer;
+    QTimer *refreshtimer,*remaintimer;
     QMap<QString,QString>History;
     void CursorDown();
-    QLabel *DownLabel;
+    QLabel *DownLabel,*RemainLabel;
     bool Cloaking;
     QMediaPlayer *Notification;
     PluginManager *pm;
@@ -73,6 +73,7 @@ private slots:
     void ClearHistory();
     void Failed(const QString &IP,unsigned short Port);
     void SendMsg(const QString &Nick,const QString &Content);
+    void RefreshRemain();
 protected:
     void closeEvent(QCloseEvent*);
 };
