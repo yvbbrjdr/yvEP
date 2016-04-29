@@ -48,6 +48,7 @@ public:
     bool Bind(unsigned int Port);
     bool ConnectTo(const QString &IP,unsigned short Port);
     bool SendData(const QString &IP,unsigned short Port,const QVariantMap &Data);
+    unsigned long BufferRemain();
     void SendRaw(const QString &IP,unsigned short Port,const QByteArray &Data);
     void ResetRemote(const QString &IP,unsigned short Port);
 signals:

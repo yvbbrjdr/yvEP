@@ -27,11 +27,12 @@ MainWindow::MainWindow(yvEP *protocol,const QString &ServerIP,unsigned short Ser
     ui->setupUi(this);
     listmodel=new QStringListModel(this);
     refreshtimer=new QTimer(this);
+    remaintimer=new QTimer(this);
     setWindowTitle(windowTitle()+" - "+Nickname+'@'+ServerIP+':'+QString::number(ServerPort));
-    DownLabel=new QLabel;
-    DownLabel->setMinimumSize(DownLabel->sizeHint());
-    DownLabel->setAlignment(Qt::AlignHCenter);
-    ui->statusBar->addWidget(DownLabel);
+    DownLabel=new QLabel(this);
+    ui->statusBar->addWidget(DownLabel,1000);
+    RemainLabel=new QLabel(this);
+    ui->statusBar->addWidget(RemainLabel,1);
     ui->statusBar->setStyleSheet("QStatusBar::item{border: 0px}");
     Notification=new QMediaPlayer(this);
     Notification->setMedia(QUrl::fromLocalFile(QApplication::applicationDirPath()+"/notification.wav"));
@@ -41,6 +42,7 @@ MainWindow::MainWindow(yvEP *protocol,const QString &ServerIP,unsigned short Ser
     connect(ui->Message,SIGNAL(returnPressed()),this,SLOT(SendMessage()));
     connect(ui->CloakButton,SIGNAL(clicked(bool)),this,SLOT(Cloak()));
     connect(refreshtimer,SIGNAL(timeout()),this,SLOT(Refresh()));
+    connect(remaintimer,SIGNAL(timeout()),this,SLOT(RefreshRemain()));
     connect(ui->ClientList,SIGNAL(clicked(QModelIndex)),this,SLOT(Touch(QModelIndex)));
     connect(ui->ServerForward,SIGNAL(stateChanged(int)),this,SLOT(ForwardCheck()));
     connect(ui->ClearHistory,SIGNAL(clicked(bool)),this,SLOT(ClearHistory()));
@@ -49,6 +51,7 @@ MainWindow::MainWindow(yvEP *protocol,const QString &ServerIP,unsigned short Ser
     ui->Prefix->setText(qvm["prefix"].toString());
     ui->Suffix->setText(qvm["suffix"].toString());
     refreshtimer->start(30000);
+    remaintimer->start(1000);
 }
 
 MainWindow::~MainWindow() {
@@ -243,4 +246,8 @@ void MainWindow::SendMsg(const QString &Nick,const QString &Content) {
         qvm["type"]="broadcast";
     }
     protocol->SendData(ServerIP,ServerPort,qvm);
+}
+
+void MainWindow::RefreshRemain() {
+    RemainLabel->setText(QString("%1 Byte(s)").arg(protocol->BufferRemain()));
 }
