@@ -113,9 +113,16 @@ void Server::RecvData(const QString &IP,unsigned short Port,const QVariantMap &D
             protocol->SendData(IP,Port,qvm);
         }
     } else if (Data["type"]=="broadcast") {
-        for (QMap<QString,UserData>::iterator it=Clients.begin();it!=Clients.end();++it)
-            if (it.value().IP!=IP||it.value().Port!=Port)
-                protocol->SendData(it.value().IP,it.value().Port,Data);
+        if (Data["to"].toString()=="") {
+            for (QMap<QString,UserData>::iterator it=Clients.begin();it!=Clients.end();++it)
+                if (it.value().IP!=IP||it.value().Port!=Port)
+                    protocol->SendData(it.value().IP,it.value().Port,Data);
+        } else {
+            QStringList to=Data["to"].toString().split('\n');
+            for (QMap<QString,UserData>::iterator it=Clients.begin();it!=Clients.end();++it)
+                if ((it.value().IP!=IP||it.value().Port!=Port)&&to.indexOf(it.key())!=-1)
+                    protocol->SendData(it.value().IP,it.value().Port,Data);
+        }
     } else if (Data["type"]=="cloak") {
         QString n(Data["nickname"].toString());
         QMap<QString,UserData>::iterator it=Clients.find(n);

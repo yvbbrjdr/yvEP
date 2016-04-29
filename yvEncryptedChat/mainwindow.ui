@@ -90,6 +90,13 @@
        </widget>
       </item>
       <item>
+       <widget class="QPushButton" name="BroadcastList">
+        <property name="text">
+         <string>Broadcast List</string>
+        </property>
+       </widget>
+      </item>
+      <item>
        <widget class="QCheckBox" name="ServerForward">
         <property name="text">
          <string>Server Forwarding</string>

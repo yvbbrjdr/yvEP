@@ -46,6 +46,8 @@ MainWindow::MainWindow(yvEP *protocol,const QString &ServerIP,unsigned short Ser
     connect(ui->ClientList,SIGNAL(clicked(QModelIndex)),this,SLOT(Touch(QModelIndex)));
     connect(ui->ServerForward,SIGNAL(stateChanged(int)),this,SLOT(ForwardCheck()));
     connect(ui->ClearHistory,SIGNAL(clicked(bool)),this,SLOT(ClearHistory()));
+    connect(ui->BroadcastList,SIGNAL(clicked(bool)),this,SLOT(BroadcastListClick()));
+    ui->BroadcastList->setVisible(false);
     ConfigManager config;
     QVariantMap qvm(config.GetConfig(QApplication::applicationDirPath()+"/yvEC.config"));
     ui->Prefix->setText(qvm["prefix"].toString());
@@ -82,7 +84,7 @@ void MainWindow::RecvData(const QString&,unsigned short,const QVariantMap &Data)
         Refresh();
     } else if (Data["type"]=="message") {
         QString n=Data["nickname"].toString();
-        History[n]+="<p style=\"text-align:left\"><font color=\"green\">"+QTime::currentTime().toString("hh:mm:ss")+' '+n+"<br>"+Data["message"].toString().replace('\n',"<br>")+"</font></p>";
+        History[n]+="<p style=\"color:green;\">"+QTime::currentTime().toString("hh:mm:ss")+' '+n+"<br>"+Data["message"].toString()+"</p>";
         if (n==RemoteNickname) {
             ui->History->setHtml(History[n]);
             CursorDown();
@@ -96,7 +98,7 @@ void MainWindow::RecvData(const QString&,unsigned short,const QVariantMap &Data)
         }
         emit pm->RecvMsg(Data["nickname"].toString(),Data["message"].toString());
     } else if (Data["type"]=="broadcast") {
-        History["Broadcast"]+="<p style=\"text-align:left\"><font color=\"green\">"+QTime::currentTime().toString("hh:mm:ss")+' '+Data["nickname"].toString()+"<br>"+Data["message"].toString().replace('\n',"<br>")+"</font></p>";
+        History["Broadcast"]+="<p style=\"color:green;\">"+QTime::currentTime().toString("hh:mm:ss")+' '+Data["nickname"].toString()+"<br>"+Data["message"].toString()+"</p>";
         if (RemoteNickname=="Broadcast") {
             ui->History->setHtml(History["Broadcast"]);
             CursorDown();
@@ -128,10 +130,7 @@ void MainWindow::SendMessage() {
         QMessageBox::critical(this,"Error","Invalid characters (\'\{',\'}\')");
         return;
     }
-    History[RemoteNickname]+="<p style=\"text-align:right\"><font color=\"blue\">"+QTime::currentTime().toString("hh:mm:ss")+' '+Nickname+"<br>"+Message.replace('\n',"<br>")+"</font></p>";
-    ui->History->setHtml(History[RemoteNickname]);
-    CursorDown();
-    ui->Message->setText("");
+    Message.replace('\n',"<br>");
     QVariantMap qvm;
     qvm["nickname"]=Nickname;
     qvm["message"]=Message;
@@ -139,6 +138,11 @@ void MainWindow::SendMessage() {
         qvm["type"]="broadcast";
         if (Cloaking)
             qvm["nickname"]="Cloaked";
+        if (BroadcastList!="") {
+            qvm["to"]=BroadcastList;
+            Message+="<br>(To "+BroadcastList+')';
+            qvm["message"]=Message;
+        }
         protocol->SendData(ServerIP,ServerPort,qvm);
     } else if (ui->ServerForward->isChecked()) {
         qvm["type"]="forward";
@@ -149,6 +153,11 @@ void MainWindow::SendMessage() {
         protocol->ConnectTo(RemoteIP,RemotePort);
         protocol->SendData(RemoteIP,RemotePort,qvm);
     }
+
+    History[RemoteNickname]+="<p style=\"text-align:right;color:blue;\">"+QTime::currentTime().toString("hh:mm:ss")+' '+Nickname+"<br>"+Message+"</p>";
+    ui->History->setHtml(History[RemoteNickname]);
+    CursorDown();
+    ui->Message->setText("");
 }
 
 void MainWindow::Refresh() {
@@ -177,17 +186,19 @@ void MainWindow::Touch(const QModelIndex &index) {
     ui->History->setHtml(History[index.data().toString()]);
     CursorDown();
     if (index.data().toString()=="Broadcast") {
+        ui->BroadcastList->setVisible(true);
         RemoteNickname="Broadcast";
         ui->Message->setEnabled(true);
         ui->Message->setFocus();
         return;
     }
+    ui->BroadcastList->setVisible(false);
     ui->Message->setEnabled(false);
     if (index.data().toString()==Nickname) {
-        QMessageBox::warning(this,"Warning","You can't chat with yourself!");
         RemoteNickname=Nickname;
         if (DownLabel->text().left(DownLabel->text().length()-20)==RemoteNickname)
             DownLabel->setText("");
+        QMessageBox::warning(this,"Warning","You can't chat with yourself!");
         return;
     }
     QVariantMap qvm;
@@ -250,4 +261,11 @@ void MainWindow::SendMsg(const QString &Nick,const QString &Content) {
 
 void MainWindow::RefreshRemain() {
     RemainLabel->setText(QString("%1 Byte(s)").arg(protocol->BufferRemain()));
+}
+
+void MainWindow::BroadcastListClick() {
+    bool ok;
+    QString tmp(QInputDialog::getMultiLineText(this,"Broadcast List","Enter the users you want to broadcast to (One line per each) (Leave empty for everyone)",BroadcastList,&ok));
+    if (ok)
+        BroadcastList=tmp;
 }

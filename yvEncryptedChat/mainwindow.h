@@ -34,6 +34,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #include <QMediaPlayer>
 #include <QDir>
 #include <QTime>
+#include <QInputDialog>
 #include "pluginmanager.h"
 #include "configmanager.h"
 
@@ -63,6 +64,7 @@ private:
     bool Cloaking;
     QMediaPlayer *Notification;
     PluginManager *pm;
+    QString BroadcastList;
 private slots:
     void RecvData(const QString&,unsigned short,const QVariantMap &Data);
     void SendMessage();
@@ -74,6 +76,7 @@ private slots:
     void Failed(const QString &IP,unsigned short Port);
     void SendMsg(const QString &Nick,const QString &Content);
     void RefreshRemain();
+    void BroadcastListClick();
 protected:
     void closeEvent(QCloseEvent*);
 };
