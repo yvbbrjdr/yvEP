@@ -22,6 +22,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #define SOCKETSENDER_H
 
 #include <QThread>
+#include <QTime>
 #include <sodium.h>
 #include "socketbuffer.h"
 
@@ -30,7 +31,8 @@ class SocketSender : public QThread {
 private:
     SocketBuffer *buf;
     bool stop;
-    int count,count1,count2;
+    int count;
+    QTime time;
 public:
     explicit SocketSender(SocketBuffer *buf,QObject *parent=0);
     void Stop();

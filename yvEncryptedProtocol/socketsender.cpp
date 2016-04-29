@@ -20,46 +20,49 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 #include "socketsender.h"
 
-SocketSender::SocketSender(SocketBuffer *buf,QObject *parent):QThread(parent),buf(buf),stop(false),count(0),count1(0),count2(0) {}
+SocketSender::SocketSender(SocketBuffer *buf,QObject *parent):QThread(parent),buf(buf),stop(false),count(0) {
+    time=QTime::currentTime();
+}
 
 void SocketSender::run() {
     while (!stop) {
         buf->mutex.lock();
         if (buf->PublicKey.size()==0) {
             ++count;
-            if (count==10000)
+            if (time.secsTo(QTime::currentTime())>=10)
                 emit Reset();
             buf->mutex.unlock();
             msleep(1);
             continue;
         }
         if (buf->SendNonce!=buf->ReplyNonce) {
-            ++count1;
-            if (count1==1000) {
-                ++count2;
-                if (count2==10) {
+            if (time.msecsTo(QTime::currentTime())>=1000) {
+                ++count;
+                if (count==10) {
                     buf->mutex.unlock();
                     emit Reset();
                     break;
                 }
-                count1=0;
+                time=QTime::currentTime();
                 emit SendRaw(buf->LastSend);
             }
             buf->mutex.unlock();
-            msleep(1);
+            msleep(0);
             continue;
         }
         if (buf->SendBuf.size()==0) {
             buf->mutex.unlock();
+            time=QTime::currentTime();
             msleep(1);
             continue;
         }
-        count1=count2=0;
+        count=0;
         sodium_increment((unsigned char*)buf->SendNonce.data(),buf->SendNonce.length());
-        buf->LastSend=buf->SendBuf.left(512);
-        buf->SendBuf=buf->SendBuf.mid(512);
+        buf->LastSend=buf->SendBuf.left(1400);
+        buf->SendBuf=buf->SendBuf.mid(1400);
         emit SendRaw(buf->LastSend);
         buf->mutex.unlock();
+        time=QTime::currentTime();
     }
 }
 
