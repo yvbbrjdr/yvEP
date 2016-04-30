@@ -38,6 +38,8 @@ private:
     Ui::ImageShowDialog *ui;
 private slots:
     void SaveImage();
+protected:
+    void closeEvent(QCloseEvent*);
 };
 
 #endif // IMAGESHOWDIALOG_H

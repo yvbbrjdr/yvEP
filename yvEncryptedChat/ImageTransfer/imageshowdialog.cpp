@@ -41,3 +41,7 @@ void ImageShowDialog::SaveImage() {
     if (!ui->label->pixmap()->save(Filename))
         QMessageBox::critical(this,"Error","Failed to save the image");
 }
+
+void ImageShowDialog::closeEvent(QCloseEvent*) {
+    deleteLater();
+}
