@@ -119,6 +119,13 @@ void MainWindow::RecvData(const QString&,unsigned short,const QVariantMap &Data)
         Refresh();
     } else if (Data["type"]=="forward") {
         QMessageBox::critical(this,"ERROR","The message wasn't sent out.\nThe user has logged out.");
+    } else if (Data["type"]=="punch") {
+        if (Data["num"].toInt()==0) {
+            QVariantMap punch;
+            punch["type"]="punch";
+            punch["num"]=1;
+            protocol->SendData(RemoteIP,RemotePort,punch);
+        }
     }
 }
 
@@ -161,6 +168,12 @@ void MainWindow::SendMessage() {
 }
 
 void MainWindow::Refresh() {
+    if ((!ui->ServerForward->isChecked())&&RemoteNickname!=""&&RemoteNickname!=Nickname&&RemoteNickname!="Broadcast") {
+        QVariantMap punch;
+        punch["type"]="punch";
+        punch["num"]=0;
+        protocol->SendData(RemoteIP,RemotePort,punch);
+    }
     QVariantMap qvm;
     qvm["type"]="list";
     qvm["nickname"]=Nickname;
