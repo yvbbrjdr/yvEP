@@ -50,10 +50,6 @@ void LoginDialog::LoginPressed() {
         QMessageBox::critical(this,"Error","Please complete the form");
         return;
     }
-    if (ui->Nickname->text().indexOf('{')!=-1||ui->Nickname->text().indexOf('}')!=-1) {
-        QMessageBox::critical(this,"Error","Invalid characters (\'\{',\'}\')");
-        return;
-    }
     ui->LoginButton->setEnabled(false);
     ConfigManager config;
     QVariantMap qvm(config.GetConfig(QApplication::applicationDirPath()+"/yvEC.config"));

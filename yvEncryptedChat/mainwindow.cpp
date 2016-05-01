@@ -133,10 +133,6 @@ void MainWindow::SendMessage() {
     if (ui->Message->text()=="")
         return;
     QString Message(ui->Prefix->text()+ui->Message->text()+ui->Suffix->text());
-    if (Message.indexOf('{')!=-1||Message.indexOf('}')!=-1) {
-        QMessageBox::critical(this,"Error","Invalid characters (\'\{',\'}\')");
-        return;
-    }
     Message.replace('\n',"<br>");
     QVariantMap qvm;
     qvm["nickname"]=Nickname;

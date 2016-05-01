@@ -62,7 +62,7 @@ void yvEPSocket::ProcessRaw(const QByteArray &Data) {
 
 void yvEPSocket::PushData(const QVariantMap &Data) {
     buffer->mutex.lock();
-    buffer->SendBuf.append(QJsonDocument::fromVariant(Data).toJson());
+    buffer->SendBuf.append(QJsonDocument::fromVariant(Data).toJson()+char(23));
     buffer->mutex.unlock();
 }
 

@@ -25,14 +25,14 @@ SocketReceiver::SocketReceiver(SocketBuffer *buf,QObject *parent):QThread(parent
 void SocketReceiver::run() {
     while (!stop) {
         buf->mutex.lock();
-        int e=buf->RecvBuf.indexOf('}');
+        int e=buf->RecvBuf.indexOf(char(23));
         if (e==-1) {
             buf->mutex.unlock();
             msleep(1);
             continue;
         }
-        emit RecvData(QJsonDocument::fromJson(buf->RecvBuf.left(e+1)).toVariant().toMap());
-        buf->RecvBuf=buf->RecvBuf.mid(e+2);
+        emit RecvData(QJsonDocument::fromJson(buf->RecvBuf.left(e)).toVariant().toMap());
+        buf->RecvBuf=buf->RecvBuf.mid(e+1);
         buf->mutex.unlock();
     }
 }
