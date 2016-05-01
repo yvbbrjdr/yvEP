@@ -20,12 +20,20 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 #include "imagetransfer.h"
 
+ImageTransfer::ImageTransfer() {
+    PluginName="Image Transfer";
+    FunctionName="Send Image";
+}
+
 void ImageTransfer::Init(PluginManager *manager) {
     itd=new ImageTransferDialog(manager);
+}
+
+void ImageTransfer::Function() {
     itd->show();
 }
 
-void ImageTransfer::Destroy() {
+void ImageTransfer::Destroy(PluginManager*) {
     itd->close();
-    delete itd;
+    itd->deleteLater();
 }

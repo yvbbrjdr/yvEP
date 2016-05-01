@@ -32,8 +32,10 @@ class ImageTransfer : public QObject,public Plugin {
 private:
     ImageTransferDialog *itd;
 public:
+    ImageTransfer();
     void Init(PluginManager *manager);
-    void Destroy();
+    void Function();
+    void Destroy(PluginManager*);
 };
 
 #endif // IMAGETRANSFER_H

@@ -28,7 +28,9 @@ class Echo : public QObject,public Plugin {
     Q_PLUGIN_METADATA(IID "Echo")
     Q_INTERFACES(Plugin)
 public:
+    Echo();
     void Init(PluginManager *manager);
+    void Destroy(PluginManager *manager);
 };
 
 #endif // ECHO_H

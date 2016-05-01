@@ -18,18 +18,21 @@ SOURCES += main.cpp\
     plugin.cpp \
     pluginmanager.cpp \
     configmanager.cpp \
-    aboutdialog.cpp
+    aboutdialog.cpp \
+    pluginscontrolpanel.cpp
 
 HEADERS  += mainwindow.h \
     logindialog.h \
     plugin.h \
     pluginmanager.h \
     configmanager.h \
-    aboutdialog.h
+    aboutdialog.h \
+    pluginscontrolpanel.h
 
 FORMS    += mainwindow.ui \
     logindialog.ui \
-    aboutdialog.ui
+    aboutdialog.ui \
+    pluginscontrolpanel.ui
 
 INCLUDEPATH += ../yvEncryptedProtocol
 

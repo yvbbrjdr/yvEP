@@ -4,7 +4,7 @@
 #
 #-------------------------------------------------
 
-QT += script
+QT += script widgets
 
 TARGET = Calculator
 TEMPLATE = lib

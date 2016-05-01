@@ -20,6 +20,15 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 #include "echo.h"
 
+Echo::Echo() {
+    PluginName="Echo";
+    Activated=false;
+}
+
 void Echo::Init(PluginManager *manager) {
     connect(manager,SIGNAL(RecvMsg(QString,QString)),manager,SIGNAL(SendMsg(QString,QString)));
+}
+
+void Echo::Destroy(PluginManager *manager) {
+    disconnect(manager,SIGNAL(RecvMsg(QString,QString)),manager,SIGNAL(SendMsg(QString,QString)));
 }

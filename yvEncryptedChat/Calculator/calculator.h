@@ -30,7 +30,11 @@ class Calculator : public QObject,public Plugin {
     Q_PLUGIN_METADATA(IID "Calculator")
     Q_INTERFACES(Plugin)
 public:
+    Calculator();
     void Init(PluginManager *manager);
+    void Function();
+    void Destroy(PluginManager *manager);
+private:
     QScriptEngine qse;
 signals:
     void SendMsg(const QString &Nickname,const QString &Content);

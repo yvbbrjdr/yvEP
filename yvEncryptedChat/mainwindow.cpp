@@ -47,6 +47,7 @@ MainWindow::MainWindow(yvEP *protocol,const QString &ServerIP,unsigned short Ser
     connect(ui->ServerForward,SIGNAL(stateChanged(int)),this,SLOT(ForwardCheck()));
     connect(ui->ClearHistory,SIGNAL(clicked(bool)),this,SLOT(ClearHistory()));
     connect(ui->BroadcastList,SIGNAL(clicked(bool)),this,SLOT(BroadcastListClick()));
+    connect(ui->PluginsButton,SIGNAL(clicked(bool)),pm,SLOT(ShowPluginsControlPanel()));
     ui->BroadcastList->setVisible(false);
     ConfigManager config;
     QVariantMap qvm(config.GetConfig(QApplication::applicationDirPath()+"/yvEC.config"));

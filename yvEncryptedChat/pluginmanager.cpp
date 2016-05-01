@@ -41,13 +41,25 @@ PluginManager::PluginManager(QObject *parent) : QObject(parent) {
             qpl->deleteLater();
             continue;
         }
-        instances.push_back(ThePlugin);
-        ThePlugin->Init(this);
+        if (instances.find(ThePlugin->PluginName)!=instances.end())
+            continue;
+        instances.insert(ThePlugin->PluginName,ThePlugin);
+        if (ThePlugin->Activated)
+            ThePlugin->Init(this);
     }
+    pcp=new PluginsControlPanel(instances,this);
 }
 
 PluginManager::~PluginManager() {
-    for (int i=0;i<instances.size();++i) {
-        instances[i]->Destroy();
+    pcp->close();
+    delete pcp;
+    for (QMap<QString,Plugin*>::iterator it=instances.begin();it!=instances.end();++it) {
+        if (it.value()->Activated) {
+            it.value()->Destroy(this);
+        }
     }
+}
+
+void PluginManager::ShowPluginsControlPanel() {
+    pcp->show();
 }

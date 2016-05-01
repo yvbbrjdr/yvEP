@@ -21,12 +21,18 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #ifndef PLUGIN_H
 #define PLUGIN_H
 
+#include <QString>
+
 class PluginManager;
 
 class Plugin {
 public:
+    QString PluginName,FunctionName;
+    bool Activated;
+    Plugin();
     virtual void Init(PluginManager *manager);
-    virtual void Destroy();
+    virtual void Function();
+    virtual void Destroy(PluginManager *manager);
 };
 
 #include "pluginmanager.h"

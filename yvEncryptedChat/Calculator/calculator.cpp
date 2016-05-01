@@ -20,6 +20,12 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 #include "calculator.h"
 
+Calculator::Calculator() {
+    PluginName="Calculator";
+    FunctionName="Allow letters";
+    Activated=false;
+}
+
 void Calculator::Init(PluginManager *manager) {
     connect(manager,SIGNAL(RecvMsg(QString,QString)),this,SLOT(RecvMsg(QString,QString)));
     connect(this,SIGNAL(SendMsg(QString,QString)),manager,SIGNAL(SendMsg(QString,QString)));
@@ -29,10 +35,23 @@ void Calculator::RecvMsg(const QString &Nickname,const QString &Content) {
     if (Nickname=="Broadcast")
         return;
     for (int i=0;i<Content.length();++i) {
-        if (Content[i].isLetter()) {
+        if (Content[i].isLetter()&&FunctionName=="Allow letters") {
             emit SendMsg(Nickname,"Letters are forbidden in the expression");
             return;
         }
     }
     emit SendMsg(Nickname,qse.evaluate(Content).toString());
+}
+
+void Calculator::Function() {
+    if (FunctionName=="Allow letters") {
+        FunctionName="Disallow letters";
+    } else {
+        FunctionName="Allow letters";
+    }
+}
+
+void Calculator::Destroy(PluginManager *manager) {
+    disconnect(manager,SIGNAL(RecvMsg(QString,QString)),this,SLOT(RecvMsg(QString,QString)));
+    disconnect(this,SIGNAL(SendMsg(QString,QString)),manager,SIGNAL(SendMsg(QString,QString)));
 }

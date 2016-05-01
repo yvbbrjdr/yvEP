@@ -45,8 +45,6 @@ signals:
 private slots:
     void RecvMsg(const QString &Nickname,const QString &Content);
     void Transfer();
-protected:
-    void closeEvent(QCloseEvent *event);
 };
 
 #endif // IMAGETRANSFERDIALOG_H

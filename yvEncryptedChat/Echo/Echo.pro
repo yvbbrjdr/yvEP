@@ -4,6 +4,8 @@
 #
 #-------------------------------------------------
 
+QT += widgets
+
 TARGET = Echo
 TEMPLATE = lib
 CONFIG += plugin

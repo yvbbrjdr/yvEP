@@ -32,10 +32,6 @@ ImageTransferDialog::~ImageTransferDialog() {
     delete ui;
 }
 
-void ImageTransferDialog::closeEvent(QCloseEvent *event) {
-    event->ignore();
-}
-
 void ImageTransferDialog::RecvMsg(const QString &Nickname,const QString &Content) {
     if (Content.left(9)!="Image<!--")
         return;

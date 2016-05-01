@@ -20,6 +20,10 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 #include "plugin.h"
 
+Plugin::Plugin():Activated(true) {}
+
 void Plugin::Init(PluginManager*) {}
 
-void Plugin::Destroy() {}
+void Plugin::Function() {}
+
+void Plugin::Destroy(PluginManager*) {}

@@ -24,21 +24,25 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #include <QObject>
 #include <QPluginLoader>
 #include <QString>
-#include <QVector>
+#include <QMap>
 #include <QDir>
 #include <QCoreApplication>
 #include "plugin.h"
+#include "pluginscontrolpanel.h"
 
 class PluginManager : public QObject {
     Q_OBJECT
 private:
-    QVector<Plugin*>instances;
+    QMap<QString,Plugin*>instances;
+    PluginsControlPanel *pcp;
 public:
     explicit PluginManager(QObject *parent = 0);
     ~PluginManager();
 signals:
     void RecvMsg(const QString &Nickname,const QString &Content);
     void SendMsg(const QString &Nickname,const QString &Content);
+public slots:
+    void ShowPluginsControlPanel();
 };
 
 #endif // PLUGINMANAGER_H
