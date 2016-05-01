@@ -60,9 +60,6 @@
      <property name="text">
       <string>Anonymous</string>
      </property>
-     <property name="maxLength">
-      <number>16</number>
-     </property>
      <property name="alignment">
       <set>Qt::AlignCenter</set>
      </property>
