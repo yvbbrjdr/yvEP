@@ -108,10 +108,10 @@ void MainWindow::RecvData(const QString&,unsigned short,const QVariantMap &Data)
     } else if (Data["type"]=="cloak") {
         if (Data["status"]=="cloaked") {
             Cloaking=1;
-            ui->CloakButton->setText("Decloak");
+            ui->CloakButton->setChecked(true);
         } else {
             Cloaking=0;
-            ui->CloakButton->setText("Cloak");
+            ui->CloakButton->setChecked(false);
         }
     } else if (Data["type"]=="logout") {
         QApplication::quit();
@@ -224,6 +224,7 @@ void MainWindow::CursorDown() {
 }
 
 void MainWindow::Cloak() {
+    ui->CloakButton->setChecked(!ui->CloakButton->isChecked());
     QVariantMap qvm;
     qvm["type"]="cloak";
     qvm["nickname"]=Nickname;
