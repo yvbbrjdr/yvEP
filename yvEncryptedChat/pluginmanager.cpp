@@ -21,32 +21,34 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #include "pluginmanager.h"
 
 PluginManager::PluginManager(QObject *parent) : QObject(parent) {
-    QDir dir(QCoreApplication::applicationDirPath()+"/plugins");
-    if (!dir.exists())
-        return;
-    dir.setFilter(QDir::Files);
-    QFileInfoList list=dir.entryInfoList();
-    int file_count=list.count();
-    if (file_count<=0)
-        return;
-    for (QFileInfoList::iterator it=list.begin();it!=list.end();++it) {
-        QPluginLoader *qpl=new QPluginLoader(it->absoluteFilePath(),this);
-        QObject *plugin=qpl->instance();
-        if (!plugin) {
-            qpl->deleteLater();
-            continue;
+    do {
+        QDir dir(QCoreApplication::applicationDirPath()+"/plugins");
+        if (!dir.exists())
+            break;
+        dir.setFilter(QDir::Files);
+        QFileInfoList list=dir.entryInfoList();
+        int file_count=list.count();
+        if (file_count<=0)
+            break;
+        for (QFileInfoList::iterator it=list.begin();it!=list.end();++it) {
+            QPluginLoader *qpl=new QPluginLoader(it->absoluteFilePath(),this);
+            QObject *plugin=qpl->instance();
+            if (!plugin) {
+                qpl->deleteLater();
+                continue;
+            }
+            Plugin *ThePlugin=qobject_cast<Plugin*>(plugin);
+            if (!ThePlugin) {
+                qpl->deleteLater();
+                continue;
+            }
+            if (instances.find(ThePlugin->PluginName)!=instances.end())
+                continue;
+            instances.insert(ThePlugin->PluginName,ThePlugin);
+            if (ThePlugin->Activated)
+                ThePlugin->Init(this);
         }
-        Plugin *ThePlugin=qobject_cast<Plugin*>(plugin);
-        if (!ThePlugin) {
-            qpl->deleteLater();
-            continue;
-        }
-        if (instances.find(ThePlugin->PluginName)!=instances.end())
-            continue;
-        instances.insert(ThePlugin->PluginName,ThePlugin);
-        if (ThePlugin->Activated)
-            ThePlugin->Init(this);
-    }
+    } while (0);
     pcp=new PluginsControlPanel(instances,this);
 }
 
