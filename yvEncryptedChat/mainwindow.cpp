@@ -44,7 +44,7 @@ MainWindow::MainWindow(yvEP *protocol,const QString &ServerIP,unsigned short Ser
     connect(refreshtimer,SIGNAL(timeout()),this,SLOT(Refresh()));
     connect(remaintimer,SIGNAL(timeout()),this,SLOT(RefreshRemain()));
     connect(ui->ClientList,SIGNAL(clicked(QModelIndex)),this,SLOT(Touch(QModelIndex)));
-    connect(ui->ServerForward,SIGNAL(stateChanged(int)),this,SLOT(ForwardCheck()));
+    connect(ui->ServerForward,SIGNAL(clicked(bool)),this,SLOT(ForwardCheck()));
     connect(ui->ClearHistory,SIGNAL(clicked(bool)),this,SLOT(ClearHistory()));
     connect(ui->BroadcastList,SIGNAL(clicked(bool)),this,SLOT(BroadcastListClick()));
     connect(ui->PluginsButton,SIGNAL(clicked(bool)),pm,SLOT(ShowPluginsControlPanel()));
@@ -233,7 +233,7 @@ void MainWindow::Cloak() {
 
 void MainWindow::ForwardCheck() {
     if (ui->ServerForward->isChecked()&&QMessageBox::warning(this,"WARNING","Server Forwarding is a dangerous operation that the server could see your messages.\nAre you sure to continue?",QMessageBox::Yes,QMessageBox::No)==QMessageBox::No)
-        ui->ServerForward->setCheckState(Qt::Unchecked);
+        ui->ServerForward->setChecked(false);
 }
 
 void MainWindow::ClearHistory() {

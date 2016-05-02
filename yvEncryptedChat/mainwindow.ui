@@ -107,9 +107,12 @@
        </widget>
       </item>
       <item>
-       <widget class="QCheckBox" name="ServerForward">
+       <widget class="QPushButton" name="ServerForward">
         <property name="text">
          <string>Server Forwarding</string>
+        </property>
+        <property name="checkable">
+         <bool>true</bool>
         </property>
        </widget>
       </item>
