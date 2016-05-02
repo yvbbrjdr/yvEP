@@ -22,7 +22,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 Calculator::Calculator() {
     PluginName="Calculator";
-    FunctionName="Allow letters";
+    FunctionName="Letters disallowed";
     Activated=false;
 }
 
@@ -34,7 +34,7 @@ void Calculator::Init(PluginManager *manager) {
 void Calculator::RecvMsg(const QString &Nickname,const QString &Content) {
     if (Nickname=="Broadcast")
         return;
-    if (FunctionName!="Allow letters") {
+    if (FunctionName!="Letters allowed") {
         for (int i=0;i<Content.length();++i) {
             if (Content[i].isLetter()) {
                 emit SendMsg(Nickname,"Letters are forbidden in the expression");
@@ -46,10 +46,10 @@ void Calculator::RecvMsg(const QString &Nickname,const QString &Content) {
 }
 
 void Calculator::Function() {
-    if (FunctionName=="Allow letters") {
-        FunctionName="Disallow letters";
+    if (FunctionName=="Letters disallowed") {
+        FunctionName="Letters allowed";
     } else {
-        FunctionName="Allow letters";
+        FunctionName="Letters disallowed";
     }
 }
 
