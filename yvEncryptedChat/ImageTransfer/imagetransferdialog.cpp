@@ -44,7 +44,7 @@ void ImageTransferDialog::RecvMsg(const QString &Nickname,const QString &Content
 
 void ImageTransferDialog::Transfer() {
     if (ui->lineEdit->text()=="") {
-        QMessageBox::critical(this,"Error","Please enter a nickname");
+        QMessageBox::critical(this,"ERROR","Please enter a nickname");
         return;
     }
     QString Filename=QFileDialog::getOpenFileName(this,"Select an image");
@@ -62,5 +62,5 @@ void ImageTransferDialog::Transfer() {
         emit SendMsg(ui->lineEdit->text(),QString("Sending image [%1*%2] (%3 Bytes)").arg(Pixmap.width()).arg(Pixmap.height()).arg(qba.length()));
         emit SendMsg(ui->lineEdit->text(),"Image<!--"+qba+"-->");
     } else
-        QMessageBox::critical(this,"Error","Failed to load the image");
+        QMessageBox::critical(this,"ERROR","Failed to load the image");
 }

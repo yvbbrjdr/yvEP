@@ -208,7 +208,7 @@ void MainWindow::Touch(const QModelIndex &index) {
         RemoteNickname=Nickname;
         if (DownLabel->text().left(DownLabel->text().length()-20)==RemoteNickname)
             DownLabel->setText("");
-        QMessageBox::warning(this,"Warning","You can't chat with yourself!");
+        QMessageBox::warning(this,"WARNING","You can't chat with yourself!");
         return;
     }
     QVariantMap qvm;
@@ -243,10 +243,11 @@ void MainWindow::ClearHistory() {
 
 void MainWindow::Failed(const QString &IP,unsigned short Port) {
     if (IP==ServerIP&&Port==ServerPort) {
-        QMessageBox::critical(this,"ERROR","Something wrong happens.\nThe connection to the server is down.");
-        protocol->ConnectTo(ServerIP,ServerPort);
+        if (QMessageBox::critical(this,"ERROR","Something wrong happens.\nThe connection to the server is down.\nDo you want to reconnect?",QMessageBox::Yes,QMessageBox::No)==QMessageBox::Yes) {
+            protocol->ConnectTo(ServerIP,ServerPort);
+        }
     } else {
-        QMessageBox::critical(this,"ERROR","Something wrong happens.\nThe message wasn't sent out.");
+        QMessageBox::critical(this,"ERROR","Something wrong happens.\nThe connection to the user is down. ");
     }
 }
 
