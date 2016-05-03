@@ -27,8 +27,8 @@ MainThread::MainThread() {
 
 void MainThread::run() {
     while (1) {
-        char tmp[20];
-        QString n(fgets(tmp,18,stdin));
+        char tmp[110];
+        QString n(fgets(tmp,105,stdin));
         n=n.left(n.length()-1);
         emit RemoveClient(n);
     }
