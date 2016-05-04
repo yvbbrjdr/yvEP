@@ -245,6 +245,12 @@ void MainWindow::Failed(const QString &IP,unsigned short Port) {
     if (IP==ServerIP&&Port==ServerPort) {
         if (QMessageBox::critical(this,"ERROR","Something wrong happens.\nThe connection to the server is down.\nDo you want to reconnect?",QMessageBox::Yes,QMessageBox::No)==QMessageBox::Yes) {
             protocol->ConnectTo(ServerIP,ServerPort);
+        } else {
+            ui->CloakButton->setEnabled(false);
+            ui->ClientList->setEnabled(false);
+            ui->BroadcastList->setEnabled(false);
+            ui->ServerForward->setChecked(false);
+            ui->ServerForward->setEnabled(false);
         }
     } else {
         QMessageBox::critical(this,"ERROR","Something wrong happens.\nThe connection to the user is down. ");
