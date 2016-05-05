@@ -78,7 +78,7 @@ void LoginDialog::RecvData(const QString&,unsigned short,const QVariantMap &Data
         close();
     } else if (Data["result"]=="fail") {
         QMessageBox::critical(this,"Failed","Someone else used this nickname:\n"+ui->Nickname->text()+"\nYou have to change one.");
-        ui->LoginButton->setEnabled(true);
+        Failed();
     }
 }
 
