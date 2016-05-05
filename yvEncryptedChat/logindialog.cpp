@@ -60,8 +60,15 @@ void LoginDialog::LoginPressed() {
     ui->TitleLabel->setText("Connecting");
     QApplication::processEvents();
     ServerIP=ui->Address->text();
-    if (!ServerIP.at(0).isDigit())
-        ServerIP=QHostInfo::fromName(ServerIP).addresses().first().toString();
+    if (!ServerIP.at(0).isDigit()) {
+        QHostInfo qhi(QHostInfo::fromName(ServerIP));
+        if (qhi.addresses().empty()) {
+            QMessageBox::critical(this,"Failed","Failed to resolve host name:\n"+ui->Address->text());
+            Failed();
+            return;
+        }
+        ServerIP=qhi.addresses().first().toString();
+    }
     protocol->ConnectTo(ServerIP,ui->Port->text().toInt());
     qvm.clear();
     qvm["type"]="login";
