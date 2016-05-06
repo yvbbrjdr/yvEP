@@ -72,6 +72,7 @@ void Server::RecvData(const QString &IP,unsigned short Port,const QVariantMap &D
         QString n(Data["nickname"].toString());
         QMap<QString,UserData>::iterator it=Clients.find(n);
         if (it!=Clients.end()&&it.value().IP==IP&&it.value().Port==Port) {
+            protocol->SendData(IP,Port,Data);
             Clients.erase(it);
             Log(QString("%1(%2:%3) logged out").arg(n).arg(IP).arg(Port));
             qvm["type"]="refresh";

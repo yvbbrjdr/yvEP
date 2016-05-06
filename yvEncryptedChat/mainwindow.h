@@ -35,6 +35,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #include <QDir>
 #include <QTime>
 #include <QInputDialog>
+#include <QCloseEvent>
 #include "pluginmanager.h"
 #include "configmanager.h"
 
@@ -65,6 +66,7 @@ private:
     QMediaPlayer *Notification;
     PluginManager *pm;
     QString BroadcastList;
+    void Close();
 private slots:
     void RecvData(const QString&,unsigned short,const QVariantMap &Data);
     void SendMessage();
@@ -78,7 +80,7 @@ private slots:
     void RefreshRemain();
     void BroadcastListClick();
 protected:
-    void closeEvent(QCloseEvent*);
+    void closeEvent(QCloseEvent *event);
 };
 
 #endif // MAINWINDOW_H

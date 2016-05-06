@@ -114,7 +114,7 @@ void MainWindow::RecvData(const QString&,unsigned short,const QVariantMap &Data)
             ui->CloakButton->setChecked(false);
         }
     } else if (Data["type"]=="logout") {
-        QApplication::quit();
+        Close();
     } else if (Data["type"]=="info") {
         ui->History->setHtml(Data["content"].toString());
         Refresh();
@@ -177,19 +177,15 @@ void MainWindow::Refresh() {
     protocol->SendData(ServerIP,ServerPort,qvm);
 }
 
-void MainWindow::closeEvent(QCloseEvent*) {
+void MainWindow::closeEvent(QCloseEvent *event) {
     QVariantMap qvm;
     qvm["type"]="logout";
     qvm["nickname"]=Nickname;
-    protocol->SendData(ServerIP,ServerPort,qvm);
-    ConfigManager config;
-    qvm=config.GetConfig(QApplication::applicationDirPath()+"/yvEC.config");
-    qvm["prefix"]=ui->Prefix->text();
-    qvm["suffix"]=ui->Suffix->text();
-    config.SetConfig(QApplication::applicationDirPath()+"/yvEC.config",qvm);
-    QTime t=QTime::currentTime();
-    while (t.msecsTo(QTime::currentTime())<=100);
-    delete pm;
+    if (protocol->SendData(ServerIP,ServerPort,qvm)) {
+        event->ignore();
+    } else {
+        Close();
+    }
 }
 
 void MainWindow::Touch(const QModelIndex &index) {
@@ -286,4 +282,15 @@ void MainWindow::BroadcastListClick() {
     QString tmp(QInputDialog::getMultiLineText(this,"Broadcast List","Enter the users you want to broadcast to (One line per each) (Leave empty for everyone)",BroadcastList,&ok));
     if (ok)
         BroadcastList=tmp;
+}
+
+void MainWindow::Close() {
+    ConfigManager config;
+    QVariantMap qvm;
+    qvm=config.GetConfig(QApplication::applicationDirPath()+"/yvEC.config");
+    qvm["prefix"]=ui->Prefix->text();
+    qvm["suffix"]=ui->Suffix->text();
+    config.SetConfig(QApplication::applicationDirPath()+"/yvEC.config",qvm);
+    delete pm;
+    deleteLater();
 }
