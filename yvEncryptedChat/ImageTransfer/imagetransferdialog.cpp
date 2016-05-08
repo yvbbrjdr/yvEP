@@ -37,7 +37,7 @@ void ImageTransferDialog::RecvMsg(const QString &Nickname,const QString &Content
         return;
     QPixmap Pixmap;
     Pixmap.loadFromData(QByteArray::fromBase64(Content.mid(9,Content.length()-12).toLocal8Bit()));
-    ImageShowDialog *isd=new ImageShowDialog("Image from "+Nickname,Pixmap,NULL);
+    ImageShowDialog *isd=new ImageShowDialog("Image from "+Nickname,Pixmap,this);
     isd->show();
     emit SendMsg(Nickname,"Image Received");
 }
